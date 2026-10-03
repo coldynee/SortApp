@@ -1,5 +1,7 @@
 package by.coldynee.model;
 
+import by.coldynee.validation.BusValidator;
+
 public class Bus {
     private final int routeNumber;
     private final String modelName;
@@ -43,6 +45,9 @@ public class Bus {
             return this;
         }
         public Bus build(){
+            BusValidator.validateRouteNumber(routeNumber);
+            BusValidator.validateModelName(modelName);
+            BusValidator.validateKilometrage(kilometrage);
             return new Bus(this);
         }
     }
