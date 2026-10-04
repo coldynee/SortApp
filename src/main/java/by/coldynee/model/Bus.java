@@ -2,6 +2,8 @@ package by.coldynee.model;
 
 import by.coldynee.validation.BusValidator;
 
+import java.util.Objects;
+
 public class Bus {
     private final int routeNumber;
     private final String modelName;
@@ -50,5 +52,22 @@ public class Bus {
             BusValidator.validateKilometrage(kilometrage);
             return new Bus(this);
         }
+    }
+
+    @Override
+    public String toString() {
+        return String.format("Автобус %s | Номер маршрута %d | пробег %d км.", modelName, routeNumber, kilometrage);
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (object == null || getClass() != object.getClass()) return false;
+        Bus bus = (Bus) object;
+        return routeNumber == bus.routeNumber && kilometrage == bus.kilometrage && Objects.equals(modelName, bus.modelName);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(routeNumber, modelName, kilometrage);
     }
 }
