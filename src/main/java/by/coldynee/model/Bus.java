@@ -3,7 +3,12 @@ package by.coldynee.model;
 import by.coldynee.validation.BusValidator;
 
 import java.util.Objects;
-
+/**
+ * Неизменяемая модель автобуса.
+ * <p>
+ * Создаётся только через {@link BusBuilder}, который гарантирует валидацию полей.
+ * </p>
+ */
 public class Bus {
     private final int routeNumber;
     private final String modelName;
@@ -27,6 +32,9 @@ public class Bus {
         return kilometrage;
     }
 
+    /**
+     * Строитель для безопасного создания {@link Bus} с валидацией.
+     */
     public static class BusBuilder{
         private int routeNumber;
         private String modelName;
@@ -46,6 +54,12 @@ public class Bus {
             this.kilometrage = kilometrage;
             return this;
         }
+
+        /**
+         * Создаёт объект {@link Bus} после валидации всех полей.
+         *
+         * @throws IllegalArgumentException если хотя бы одно поле невалидно
+         */
         public Bus build(){
             BusValidator.validateRouteNumber(routeNumber);
             BusValidator.validateModelName(modelName);
@@ -61,6 +75,7 @@ public class Bus {
 
     @Override
     public boolean equals(Object object) {
+        if (this == object) return true; //Сравнение по ссылке для оптимизации
         if (object == null || getClass() != object.getClass()) return false;
         Bus bus = (Bus) object;
         return routeNumber == bus.routeNumber && kilometrage == bus.kilometrage && Objects.equals(modelName, bus.modelName);
