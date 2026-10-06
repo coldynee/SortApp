@@ -55,7 +55,7 @@ class BusTest {
     }
 
     @Test
-    @DisplayName("Пустое имя модели должно")
+    @DisplayName("Пустое имя модели")
     void testEmptyModelName() {
         Bus.BusBuilder builder = new Bus.BusBuilder()
                 .setRouteNumber(114)
@@ -72,6 +72,17 @@ class BusTest {
                 .setRouteNumber(114)
                 .setModelName(null)
                 .setKilometrage(99999);
+
+        assertThrows(IllegalArgumentException.class, builder::build);
+    }
+
+    @Test
+    @DisplayName("Слишком длинное имя модели (51 символ)")
+    void testToLongModelName() {
+        Bus.BusBuilder builder = new Bus.BusBuilder()
+                .setRouteNumber(1)
+                .setModelName("VOLVO-VOLVO-VOLVO-VOLVO-VOLVO-VOLVO-VOLVO-VOLVO-V51")
+                .setKilometrage(100);
 
         assertThrows(IllegalArgumentException.class, builder::build);
     }

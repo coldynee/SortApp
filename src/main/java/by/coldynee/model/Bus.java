@@ -10,6 +10,15 @@ import java.util.Objects;
  * </p>
  */
 public class Bus {
+
+    //Максимальный логичный номер маршрута
+    public static final int MAX_ROUTE_NUMBER = 9999;
+    //Максимальный реалистичный пробег
+    public static final int MAX_KILOMETRAGE = 2_000_000;
+    //Максимальная реалистичная длина имени
+    public static final int MAX_MODEL_NAME_LENGTH = 50;
+
+
     private final int routeNumber;
     private final String modelName;
     private final int kilometrage;
