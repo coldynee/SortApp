@@ -14,5 +14,5 @@ public interface InputSource {
      *
      * @return список валидных автобусов
      */
-    List<Bus> load();
+    List<Bus> load(int count);
 }
