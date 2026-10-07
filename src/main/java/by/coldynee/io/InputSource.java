@@ -11,7 +11,7 @@ import java.util.List;
 public interface InputSource {
     /**
      * Загружает список автобусов из источника.
-     *
+     * @param count количество автобусов
      * @return список валидных автобусов
      */
     List<Bus> load(int count);
