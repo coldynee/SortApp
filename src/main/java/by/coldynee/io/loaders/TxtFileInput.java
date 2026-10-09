@@ -100,7 +100,7 @@ public class TxtFileInput implements InputSource {
                 }
             }
         } catch (IOException e) {
-            System.err.println("Ошибка чтения файла" + e.getMessage());
+            System.err.println("Ошибка чтения файла " + e.getMessage());
         }
         System.out.println("Загрузка из " + filePath + " завершена! \nУспешно загружено: " + buses.size());
         return buses;
