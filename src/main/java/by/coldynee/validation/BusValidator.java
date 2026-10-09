@@ -4,12 +4,13 @@ import by.coldynee.model.Bus;
 
 public class BusValidator {
 
-    public static void validateRouteNumber(int routeNumber){
-        if (routeNumber <= 0 ) {
-            throw new IllegalArgumentException("Номер маршрута не может быть меньше или равен нулю");
+    public static void validateStateBusNumber(String stateBusNumber){
+        if (stateBusNumber == null || stateBusNumber.isBlank()) {
+            throw new IllegalArgumentException("Гос. номер не может быть пустым");
         }
-        if (routeNumber > Bus.MAX_ROUTE_NUMBER) {
-            throw new IllegalArgumentException("Номер маршрута не может превышать " + Bus.MAX_ROUTE_NUMBER);
+
+        if (!Bus.RUSSIAN_CAR_NUMBER_PATTERN.matcher(stateBusNumber).matches()) {
+            throw new IllegalArgumentException("Неверный формат гос. номера");
         }
     }
     public static void validateModelName(String modelName){
@@ -22,8 +23,8 @@ public class BusValidator {
             throw new IllegalArgumentException("Модель не может быть длиннее 50 символов");
         }
 
-        if (!trimmedModelName.matches("^[a-zA-Zа-яА-ЯёЁ0-9\\s\\-\\.]+$")) {
-            throw new IllegalArgumentException("Модель содержит недопустимые символы, разрешены только буквы, цифры, пробелы, дефис и точка");
+        if (!trimmedModelName.matches("^[a-zA-Zа-яА-ЯёЁ0-9][a-zA-Zа-яА-ЯёЁ0-9\\s\\-\\.]*$")) {
+            throw new IllegalArgumentException("Модель содержит недопустимые символы или начинается с пробела/точки. Разрешены только буквы, цифры, пробелы, дефис и точка");
         }
     }
 
