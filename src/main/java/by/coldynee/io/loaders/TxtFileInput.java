@@ -58,7 +58,7 @@ public class TxtFileInput implements InputSource {
         Path path = Path.of(filePath);
 
         if (!Files.exists(path)) {
-            System.err.println("\nОшибка: файл не найден (" + filePath + ")");
+            System.err.println("\nОшибка: файл не найден (" + path.toAbsolutePath() + ")");
             return buses;
         }
         try {
