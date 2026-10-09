@@ -177,4 +177,67 @@ class BusTest {
         assertNotEquals(bus1, bus2);
     }
 
+    @Test
+    @DisplayName("Корректная работа метода toString")
+    void testToString() {
+        Bus bus = new Bus.BusBuilder()
+                .setStateBusNumber("А123ВЕ77")
+                .setModelName("Volvo")
+                .setKilometrage(99999)
+                .build();
+
+        String expected = "Автобус Volvo | Гос. Номер А123ВЕ77 | пробег 99999 км.";
+        assertEquals(expected, bus.toString());
+    }
+
+    @Test
+    @DisplayName("equals возвращает false для null и объектов других классов")
+    void testEqualsEdgeCases() {
+        Bus bus = new Bus.BusBuilder()
+                .setStateBusNumber("А123ВЕ77")
+                .setModelName("Volvo")
+                .setKilometrage(99999)
+                .build();
+
+        assertFalse(bus.equals(null));
+
+        assertFalse(bus.equals("Это строка, а не автобус"));
+        assertFalse(bus.equals(new Object()));
+    }
+
+    @Test
+    @DisplayName("equals возвращает false, если отличается только modelName")
+    void testEqualsDifferentModelName() {
+        Bus bus1 = new Bus.BusBuilder()
+                .setStateBusNumber("А123ВЕ77")
+                .setModelName("Volvo")
+                .setKilometrage(100000)
+                .build();
+
+        Bus bus2 = new Bus.BusBuilder()
+                .setStateBusNumber("А123ВЕ77")
+                .setModelName("Mercedes")
+                .setKilometrage(100000)
+                .build();
+
+        assertFalse(bus1.equals(bus2));
+    }
+
+    @Test
+    @DisplayName("equals возвращает false, если отличается только kilometrage")
+    void testEqualsDifferentKilometrage() {
+        Bus bus1 = new Bus.BusBuilder()
+                .setStateBusNumber("А123ВЕ77")
+                .setModelName("Volvo")
+                .setKilometrage(100000)
+                .build();
+
+        Bus bus2 = new Bus.BusBuilder()
+                .setStateBusNumber("А123ВЕ77")
+                .setModelName("Volvo")
+                .setKilometrage(200000)
+                .build();
+
+        assertFalse(bus1.equals(bus2));
+    }
 }
