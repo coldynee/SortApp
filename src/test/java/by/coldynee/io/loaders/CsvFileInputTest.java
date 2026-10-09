@@ -55,4 +55,63 @@ class CsvFileInputTest {
         List<Bus> buses = loader.load(0);
         assertTrue(buses.isEmpty());
     }
+
+    @Test
+    @DisplayName("Конструктор: невалидные пути и авто-добавление .csv")
+    void constructorValidationAndAutoAppend() throws Exception {
+        assertThrows(IllegalArgumentException.class, () -> new CsvFileInput(null));
+        assertThrows(IllegalArgumentException.class, () -> new CsvFileInput("   "));
+        assertThrows(IllegalArgumentException.class, () -> new CsvFileInput(""));
+
+        Path actualFile = tempDir.resolve("auto_append.csv");
+        Files.writeString(actualFile, "А111АА77,Volvo,100000");
+
+        String pathWithoutExt = actualFile.toString().substring(0, actualFile.toString().length() - 4);
+        CsvFileInput loader = new CsvFileInput(pathWithoutExt);
+
+        assertEquals(1, loader.load(0).size());
+    }
+
+    @Test
+    @DisplayName("Ограничение количества загружаемых записей (count > 0)")
+    void loadWithLimit() throws Exception {
+        String content = "А111АА77,Volvo,100000\nК222КК77,Mercedes,200000\nЕ333ЕЕ77,BMW,300000";
+        Path filePath = tempDir.resolve("limit.csv");
+        Files.writeString(filePath, content);
+
+        CsvFileInput loader = new CsvFileInput(filePath.toString());
+        assertEquals(2, loader.load(2).size());
+    }
+
+    @Test
+    @DisplayName("Пропуск пустых строк в файле")
+    void skipsEmptyLines() throws Exception {
+        String content = "А111АА77,Volvo,100000\n\n\nК222КК77,Mercedes,200000";
+        Path filePath = tempDir.resolve("empty_lines.csv");
+        Files.writeString(filePath, content);
+
+        CsvFileInput loader = new CsvFileInput(filePath.toString());
+        assertEquals(2, loader.load(0).size());
+    }
+
+    @Test
+    @DisplayName("Перехват NumberFormatException (не число в пробеге)")
+    void catchNumberFormatException() throws Exception {
+        String content = "А111АА77,Volvo,abc";
+        Path filePath = tempDir.resolve("nan.csv");
+        Files.writeString(filePath, content);
+
+        CsvFileInput loader = new CsvFileInput(filePath.toString());
+        assertEquals(0, loader.load(0).size());
+    }
+
+    @Test
+    @DisplayName("Перехват IOException")
+    void catchIOException() throws Exception {
+        Path fakeDir = tempDir.resolve("fake_directory.csv");
+        Files.createDirectory(fakeDir);
+
+        CsvFileInput loader = new CsvFileInput(fakeDir.toString());
+        assertTrue(loader.load(0).isEmpty());
+    }
 }
