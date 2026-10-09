@@ -10,9 +10,17 @@ import java.util.List;
  */
 public interface InputSource {
     /**
-     * Загружает список автобусов из источника.
-     * @param count количество автобусов
+     * Загружает автобусы из источника.
      * @return список валидных автобусов
      */
-    List<Bus> load(int count);
+    List<Bus> load();
+
+    /**
+     * Загружает ограниченное количество автобусов.
+     * @param count максимальное количество
+     * @return список валидных автобусов (максимум count)
+     */
+    default List<Bus> load(int count) {
+        return load().stream().limit(count).toList();
+    }
 }
