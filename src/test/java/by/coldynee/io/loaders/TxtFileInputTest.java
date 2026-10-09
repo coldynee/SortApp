@@ -71,4 +71,94 @@ class TxtFileInputTest {
 
         assertTrue(buses.isEmpty());
     }
+
+    @Test
+    @DisplayName("Конструктор добавляет .txt и корректно обрабатывает невалидные пути")
+    void constructorHandlesExtensionsAndInvalidPaths() throws Exception {
+        Path actualFile = tempDir.resolve("auto_append.txt");
+        Files.writeString(actualFile, "А111АА77;Volvo;100000");
+
+        String fullPath = actualFile.toString();
+
+        String pathWithoutExtension = fullPath.substring(0, fullPath.length() - 4);
+
+        TxtFileInput loader = new TxtFileInput(pathWithoutExtension);
+        List<Bus> buses = loader.load(0);
+
+        assertEquals(1, buses.size());
+        assertEquals("А111АА77", buses.get(0).getStateBusNumber());
+
+        assertThrows(IllegalArgumentException.class, () -> new TxtFileInput(null));
+
+        assertThrows(IllegalArgumentException.class, () -> new TxtFileInput("   "));
+    }
+
+    @Test
+    @DisplayName("Пропуск строк, являющихся комментариями (# и /)")
+    void skipsCommentLines() throws Exception {
+        String content = "# Это комментарий\n" +
+                "/ это тоже комментарий\n" +
+                "А111АА77;Volvo;100000";
+        Path filePath = tempDir.resolve("comments.txt");
+        Files.writeString(filePath, content);
+
+        TxtFileInput loader = new TxtFileInput(filePath.toString());
+        List<Bus> buses = loader.load(0);
+
+        assertEquals(1, buses.size());
+    }
+
+    @Test
+    @DisplayName("Пропуск строк с неверным количеством полей (не равно 3)")
+    void skipsLinesWithWrongColumnCount() throws Exception {
+        String content = "А111АА77;Volvo\n" +
+                "А111АА77;Volvo;100000;лишнее_поле\n" +
+                "К222КК77;Mercedes;200000";
+        Path filePath = tempDir.resolve("wrong_columns.txt");
+        Files.writeString(filePath, content);
+
+        TxtFileInput loader = new TxtFileInput(filePath.toString());
+        List<Bus> buses = loader.load(0);
+
+        assertEquals(1, buses.size());
+    }
+    @Test
+    @DisplayName("null или пустом пути")
+    void constructorThrowsOnInvalidPath() {
+        assertThrows(IllegalArgumentException.class, () -> new TxtFileInput(null));
+
+        assertThrows(IllegalArgumentException.class, () -> new TxtFileInput("   "));
+        assertThrows(IllegalArgumentException.class, () -> new TxtFileInput(""));
+    }
+
+    @Test
+    @DisplayName("Пропуск пустых строк и строк-комментариев (# и /)")
+    void skipsEmptyAndCommentLines() throws Exception {
+        String content = "# Это заголовок или комментарий\n" +
+                "\n" +
+                "/ Это тоже комментарий\n" +
+                "А111АА77;Volvo;100000";
+
+        Path filePath = tempDir.resolve("comments.txt");
+        Files.writeString(filePath, content);
+
+        TxtFileInput loader = new TxtFileInput(filePath.toString());
+        List<Bus> buses = loader.load(0);
+
+        assertEquals(1, buses.size());
+        assertEquals("А111АА77", buses.get(0).getStateBusNumber());
+    }
+
+    @Test
+    @DisplayName("Перехват IOException")
+    void catchIOException() throws Exception {
+        Path fakeFileDir = tempDir.resolve("fake_directory.txt");
+        Files.createDirectory(fakeFileDir);
+
+        TxtFileInput loader = new TxtFileInput(fakeFileDir.toString());
+
+        List<Bus> buses = loader.load(0);
+
+        assertTrue(buses.isEmpty());
+    }
 }
