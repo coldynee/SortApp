@@ -10,6 +10,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 /**
  * Реализация {@link InputSource} для загрузки данных об автобусах из JSON-файла.
@@ -70,41 +74,51 @@ public class JsonFileInput implements InputSource {
                 return buses;
             }
 
-            System.out.println("\nЧтение из файла " + filePath + ", Обнаружено объектов: " + rootNode.size());
-            int countToRead = (count <= 0) ? rootNode.size() : Math.min(rootNode.size(), count);
+            System.out.println("\nЧтение из файла " + filePath);
+            AtomicInteger index = new AtomicInteger(0);
 
-            for (int i = 0; i < countToRead; i++) {
-                JsonNode node = rootNode.get(i);
+            return StreamSupport.stream(rootNode.spliterator(), false)
+                    .map(node -> new Object() {
+                        JsonNode data = node;
+                        int num = index.incrementAndGet();
+                    })
+                    .limit(count > 0 ? count : Long.MAX_VALUE)
+                    .map(obj -> parseJsonNode(obj.data, obj.num))
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
 
-                try {
-                    String stateBusNumber = node.has("stateBusNumber") ? node.get("stateBusNumber").asText() : "";
-                    String modelName = node.has("modelName") ? node.get("modelName").asText() : "";
-                    String kilometrageStr = node.has("kilometrage") ? node.get("kilometrage").asText() : "";
-                    int kilometrage = Integer.parseInt(kilometrageStr);
-
-                    Bus bus = new Bus.BusBuilder()
-                            .setStateBusNumber(stateBusNumber)
-                            .setModelName(modelName)
-                            .setKilometrage(kilometrage)
-                            .build();
-
-                    buses.add(bus);
-                } catch (NumberFormatException e) {
-                    System.err.println("Обнаружен неверно указанный пробег в объекте №" + (i+1) +  ", должно быть целое число, объект пропущен");
-                } catch (IllegalArgumentException e) {
-                    System.err.println("Обнаружена ошибка валидации в объекте №" + (i+1) + ", " + e.getMessage() + ", объект пропущен");
-                } catch (Exception e) {
-                    System.err.println("Обнаружена неизвестная ошибка в объекте №" + (i+1) + ", объект пропущен");
-                }
-            }
-
-        } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
-            System.err.println("Ошибка: Файл не является валидным JSON - " + e.getMessage());
-        } catch (IOException e) {
+        } catch (IOException | java.io.UncheckedIOException e) {
             System.err.println("Ошибка чтения файла: " + e.getMessage());
+            return List.of();
         }
+    }
 
-        return buses;
+    /**
+     * Парсит один JSON-объект в Bus.
+     * Возвращает null, если объект невалиден, и выводит ошибку с его номером.
+     *
+     * @param node JSON-узел с данными
+     * @param num  порядковый номер объекта в массиве (начиная с 1)
+     * @return объект Bus или null
+     */
+    private Bus parseJsonNode(JsonNode node, int num) {
+        try {
+            String stateBusNumber = node.has("stateBusNumber") ? node.get("stateBusNumber").asText() : "";
+            String modelName = node.has("modelName") ? node.get("modelName").asText() : "";
+            String kilometrageStr = node.has("kilometrage") ? node.get("kilometrage").asText() : "";
 
+            return new Bus.BusBuilder()
+                    .setStateBusNumber(stateBusNumber)
+                    .setModelName(modelName)
+                    .setKilometrage(Integer.parseInt(kilometrageStr))
+                    .build();
+
+        } catch (NumberFormatException e) {
+            System.err.println("Обнаружен неверный пробег у элемента" + num + ", (должен быть целым числом)");
+            return null;
+        } catch (IllegalArgumentException e) {
+            System.err.println("Ошибка валидации у элемента " + num + ": " + e.getMessage());
+            return null;
+        }
     }
 }
