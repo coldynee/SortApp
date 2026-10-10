@@ -8,6 +8,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Реализация {@link InputSource} для загрузки данных об автобусах из CSV-файла.
@@ -66,53 +70,57 @@ public class CsvFileInput implements InputSource {
             System.err.println("\nОшибка: файл не найден (" + path.toAbsolutePath() + ")");
             return buses;
         }
-        try {
-            List<String> lines = Files.readAllLines(path);
-            System.out.println("\nЧтение из файла " + filePath + ", Обнаружено строк: " + lines.size());
-            int countToRead = (count <= 0) ? lines.size() : Math.min(lines.size(), count);
+        try (Stream<String> lines = Files.lines(path)) {
+            System.out.println("\nЧтение из файла " + path.toAbsolutePath());
 
-            for (int i = 0; i < countToRead; i++) {
-                String line = lines.get(i).trim();
-                if (line.isEmpty()) {
-                    continue;
-                }
+            AtomicInteger lineNumber = new AtomicInteger(0);
 
-                //Пропуск строки заголовка
-                if (i == 0 && !line.matches(".*\\d+.*")) {
-                    continue;
-                }
+            return lines
+                    .map(line -> new Object() {
+                        String text = line.trim();
+                        int num = lineNumber.incrementAndGet();
+                    })
+                    .filter(obj -> !obj.text.isEmpty())
+                    .filter(obj -> obj.num != 1 || obj.text.matches(".*\\d+.*"))
+                    .limit(count > 0 ? count : Long.MAX_VALUE)
+                    .map(obj -> parseCsvLine(obj.text, obj.num))
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
 
-                try {
-                    String[] parts = line.split(",");
-
-                    if (parts.length != 3) {
-                        System.err.println("Обнаружен неверный формат на строке " + (i+1) + " (ожидается 3 поля через ','), строка пропущена");
-                        continue;
-                    }
-
-                    String stateBusNumber = parts[0].trim();
-                    String modelName = parts[1].trim();
-                    String kilometrageStr = parts[2].trim();
-
-                    Bus bus = new Bus.BusBuilder()
-                            .setStateBusNumber(stateBusNumber)
-                            .setModelName(modelName)
-                            .setKilometrage(Integer.parseInt(kilometrageStr))
-                            .build();
-
-                    buses.add(bus);
-                } catch (NumberFormatException e) {
-                    System.err.println("Обнаружен неверно указанный пробег на строке " + (i+1) +  ", должно быть целое число, строка пропущена");
-                } catch (IllegalArgumentException e) {
-                    System.err.println("Обнаружена ошибка валидации на строке " + (i+1) + ", " + e.getMessage() + ", строка пропущена");
-                } catch (Exception e) {
-                    System.err.println("Обнаружена неизвестная ошибка на строке " + (i+1) + ", строка пропущена");
-                }
-            }
-        } catch (IOException e) {
-            System.err.println("Ошибка чтения файла" + e.getMessage());
+        } catch (IOException | java.io.UncheckedIOException e) {
+            System.err.println("Ошибка чтения файла: " + e.getMessage());
+            return List.of();
         }
-        System.out.println("Загрузка из " + filePath + " завершена! \nУспешно загружено: " + buses.size());
-        return buses;
+    }
+
+    /**
+     * Парсит одну строку CSV-файла в объект Bus.
+     * Возвращает null, если строка невалидна, и выводит ошибку с номером строки.
+     *
+     * @param line       содержимое строки
+     * @param num истинный номер строки в файле
+     * @return объект Bus или null
+     */
+    private Bus parseCsvLine(String line, int num) {
+        try {
+            String[] parts = line.split(",");
+            if (parts.length != 3) {
+                System.err.println("Обнаружен неверный формат на строке " + num + ", (ожидается 3 поля через ';'): " + line);
+                return null;
+            }
+
+            return new Bus.BusBuilder()
+                    .setStateBusNumber(parts[0].trim())
+                    .setModelName(parts[1].trim())
+                    .setKilometrage(Integer.parseInt(parts[2].trim()))
+                    .build();
+
+        } catch (NumberFormatException e) {
+            System.err.println("Обнаружен неверный пробег на строке" + num + ", (должен быть целым числом)");
+            return null;
+        } catch (IllegalArgumentException e) {
+            System.err.println("Ошибка валидации на строке " + num + " (" + line + "): " + e.getMessage());
+            return null;
+        }
     }
 }

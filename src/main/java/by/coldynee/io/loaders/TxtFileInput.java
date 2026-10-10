@@ -76,8 +76,12 @@ public class TxtFileInput implements InputSource {
     }
 
     /**
-     * Парсит одну строку файла в объект Bus.
-     * Возвращает null, если строка невалидна.
+     * Парсит одну строку txt-файла в объект Bus.
+     * Возвращает null, если строка невалидна, и выводит ошибку с номером строки.
+     *
+     * @param line       содержимое строки
+     * @param num истинный номер строки в файле
+     * @return объект Bus или null
      */
     private Bus parseLine(String line, int num) {
         try {
