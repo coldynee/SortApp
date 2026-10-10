@@ -4,6 +4,9 @@ import by.coldynee.model.Bus;
 import java.util.Comparator;
 import java.util.List;
 
+/**
+ * Стратегия сортировки списка автобусов.
+ */
 public interface SortingStrategy {
 
     String getName();
