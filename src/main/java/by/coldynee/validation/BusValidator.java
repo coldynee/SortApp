@@ -1,18 +1,15 @@
 package by.coldynee.validation;
 
-public class BusValidator {
+import by.coldynee.model.Bus;
 
-    //Максимальный логичный номер маршрута
-    private static final int MAX_ROUTE_NUMBER = 9999;
-    //Максимальный реалистичный пробег
-    private static final int MAX_KILOMETRAGE = 2_000_000;
+public class BusValidator {
 
     public static void validateRouteNumber(int routeNumber){
         if (routeNumber <= 0 ) {
             throw new IllegalArgumentException("Номер маршрута не может быть меньше или равен нулю");
         }
-        if (routeNumber > MAX_ROUTE_NUMBER) {
-            throw new IllegalArgumentException("Номер маршрута не может превышать " + MAX_ROUTE_NUMBER);
+        if (routeNumber > Bus.MAX_ROUTE_NUMBER) {
+            throw new IllegalArgumentException("Номер маршрута не может превышать " + Bus.MAX_ROUTE_NUMBER);
         }
     }
     public static void validateModelName(String modelName){
@@ -21,7 +18,7 @@ public class BusValidator {
         }
         String trimmedModelName = modelName.trim();
 
-        if (trimmedModelName.length() > 50){
+        if (trimmedModelName.length() > Bus.MAX_MODEL_NAME_LENGTH){
             throw new IllegalArgumentException("Модель не может быть длиннее 50 символов");
         }
 
@@ -34,8 +31,8 @@ public class BusValidator {
         if (kilometrage < 0 ) {
             throw new IllegalArgumentException("Пробег не может быть отрицательным");
         }
-        if (kilometrage > MAX_KILOMETRAGE) {
-            throw new IllegalArgumentException("Пробег не может превышать " + MAX_KILOMETRAGE + " км");
+        if (kilometrage > Bus.MAX_KILOMETRAGE) {
+            throw new IllegalArgumentException("Пробег не может превышать " + Bus.MAX_KILOMETRAGE + " км");
         }
     }
 }
