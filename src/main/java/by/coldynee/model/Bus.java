@@ -3,6 +3,8 @@ package by.coldynee.model;
 import by.coldynee.validation.BusValidator;
 
 import java.util.Objects;
+import java.util.regex.Pattern;
+
 /**
  * Неизменяемая модель автобуса.
  * <p>
@@ -11,26 +13,26 @@ import java.util.Objects;
  */
 public class Bus {
 
-    //Максимальный логичный номер маршрута
-    public static final int MAX_ROUTE_NUMBER = 9999;
+    //Паттерн проверки валидность
+    public static final Pattern RUSSIAN_CAR_NUMBER_PATTERN = Pattern.compile("^[АВЕКМНОРСТУХ]\\d{3}[АВЕКМНОРСТУХ]{2}\\d{2,3}$");
     //Максимальный реалистичный пробег
     public static final int MAX_KILOMETRAGE = 2_000_000;
     //Максимальная реалистичная длина имени
     public static final int MAX_MODEL_NAME_LENGTH = 50;
 
 
-    private final int routeNumber;
+    private final String stateBusNumber;
     private final String modelName;
     private final int kilometrage;
 
-    private Bus(BusBuilder builder) {
-        this.routeNumber = builder.routeNumber;
+    private Bus(BusBuilder builder, String stateBusNumber) {
+        this.stateBusNumber = stateBusNumber;
         this.modelName = builder.modelName;
         this.kilometrage = builder.kilometrage;
     }
 
-    public int getRouteNumber() {
-        return routeNumber;
+    public String getStateBusNumber() {
+        return stateBusNumber;
     }
 
     public String getModelName() {
@@ -45,12 +47,12 @@ public class Bus {
      * Строитель для безопасного создания {@link Bus} с валидацией.
      */
     public static class BusBuilder{
-        private int routeNumber;
+        private String stateBusNumber;
         private String modelName;
         private int kilometrage;
 
-        public BusBuilder setRouteNumber(int routeNumber) {
-            this.routeNumber = routeNumber;
+        public BusBuilder setStateBusNumber(String stateBusNumber) {
+            this.stateBusNumber = stateBusNumber;
             return this;
         }
 
@@ -70,28 +72,30 @@ public class Bus {
          * @throws IllegalArgumentException если хотя бы одно поле невалидно
          */
         public Bus build(){
-            BusValidator.validateRouteNumber(routeNumber);
+            String normalizedStateBusNumber = stateBusNumber != null
+                    ? stateBusNumber.replaceAll("[\\s-]", "").toUpperCase()
+                    : null;
+            BusValidator.validateStateBusNumber(normalizedStateBusNumber);
             BusValidator.validateModelName(modelName);
             BusValidator.validateKilometrage(kilometrage);
-            return new Bus(this);
+            return new Bus(this, normalizedStateBusNumber);
         }
     }
 
     @Override
     public String toString() {
-        return String.format("Автобус %s | Номер маршрута %d | пробег %d км.", modelName, routeNumber, kilometrage);
+        return String.format("Автобус %s | Гос. Номер %s | пробег %d км.", modelName, stateBusNumber, kilometrage);
     }
 
     @Override
     public boolean equals(Object object) {
-        if (this == object) return true; //Сравнение по ссылке для оптимизации
         if (object == null || getClass() != object.getClass()) return false;
         Bus bus = (Bus) object;
-        return routeNumber == bus.routeNumber && kilometrage == bus.kilometrage && Objects.equals(modelName, bus.modelName);
+        return kilometrage == bus.kilometrage && Objects.equals(stateBusNumber, bus.stateBusNumber) && Objects.equals(modelName, bus.modelName);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(routeNumber, modelName, kilometrage);
+        return Objects.hash(stateBusNumber, modelName, kilometrage);
     }
 }
