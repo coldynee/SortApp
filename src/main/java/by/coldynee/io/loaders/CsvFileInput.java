@@ -63,12 +63,11 @@ public class CsvFileInput implements InputSource {
      */
     @Override
     public List<Bus> load(int count) {
-        List<Bus> buses = new ArrayList<>();
         Path path = Path.of(filePath);
 
         if (!Files.exists(path)) {
             System.err.println("\nОшибка: файл не найден (" + path.toAbsolutePath() + ")");
-            return buses;
+            return List.of();
         }
         try (Stream<String> lines = Files.lines(path)) {
             System.out.println("\nЧтение из файла " + path.toAbsolutePath());
