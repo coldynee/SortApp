@@ -1,4 +1,4 @@
-package CustomArrayList;
+package by.coldynee.collections;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -9,7 +9,8 @@ public class CustomArrayList<T> implements Collection<T> {
 
 	private T[] elements;
     private int size = 0;
-    
+
+    @SuppressWarnings("unchecked")
     public CustomArrayList() {
     	elements = (T[]) new Object[2];
     }
@@ -36,7 +37,7 @@ public class CustomArrayList<T> implements Collection<T> {
 	}
 
 	@Override
-	 public Iterator<T> iterator() {
+    public Iterator<T> iterator() {
         return new Iterator<T>() {
             private int cursor = 0;
             private int lastRet = -1;
@@ -46,7 +47,7 @@ public class CustomArrayList<T> implements Collection<T> {
                 return cursor < size;
             }
 
-            
+
             @Override
             public T next() {
                 if (cursor >= size) {
@@ -118,14 +119,10 @@ public class CustomArrayList<T> implements Collection<T> {
 	@Override
 	public boolean addAll(Collection<? extends T> c) {
         boolean modified = false;
-        var iterC = c.iterator();
-        var sizeparam = c.size();
-        for (int i = 0; i < sizeparam; i++)
-        {
-			if (add(iterC.next())) {
-				modified = true; 
-			}
-        	
+        for (T item : c) {
+            if (add(item)) {
+                modified = true;
+            }
         }
         
         return modified;
