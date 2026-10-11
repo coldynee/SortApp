@@ -16,6 +16,11 @@ buildNumber.properties
 *.ipr
 out/
 
+# Eclipse
+.classpath
+.project
+.settings/
+
 # Compiled files
 *.class
 
