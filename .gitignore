@@ -17,9 +17,9 @@ buildNumber.properties
 out/
 
 # Eclipse
-   .classpath
-   .project
-   .settings/
+.classpath
+.project
+.settings/
 
 # Compiled files
 *.class
