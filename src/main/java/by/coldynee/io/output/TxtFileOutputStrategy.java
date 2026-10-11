@@ -26,7 +26,10 @@ public class TxtFileOutputStrategy implements OutputStrategy {
 
         try {
             List<String> lines = buses.stream()
-                    .map(Bus::toString)
+                    .map(bus -> String.format("%s;%s;%d",
+                            bus.getStateBusNumber(),
+                            bus.getModelName(),
+                            bus.getKilometrage()))
                     .collect(Collectors.toList());
 
             StandardOpenOption[] options = append
