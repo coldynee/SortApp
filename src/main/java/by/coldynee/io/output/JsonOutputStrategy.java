@@ -5,19 +5,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.CollectionType;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Стратегия записи данных в JSON-файл (.json).
- * <p>
- * ВАЖНО: JSON не поддерживает прямую дозапись (append) на уровень байтов,
- * так как это нарушит структуру массива [...].
- * Поэтому режим "append" реализуется логически: читаем существующий список,
- * добавляем новые элементы и перезаписываем файл.
- * </p>
  */
 public class JsonOutputStrategy implements OutputStrategy {
 
@@ -31,18 +27,35 @@ public class JsonOutputStrategy implements OutputStrategy {
         }
 
         Path path = Path.of(filePath.endsWith(".json") ? filePath : filePath + ".json");
-        List<Bus> finalListToSave = new ArrayList<>(buses);
 
         try {
             if (append && Files.exists(path)) {
-                CollectionType listType = objectMapper.getTypeFactory()
-                        .constructCollectionType(List.class, Bus.class);
-                List<Bus> existingBuses = objectMapper.readValue(path.toFile(), listType);
-                finalListToSave.addAll(0, existingBuses);
+                String existingContent = Files.readString(path, StandardCharsets.UTF_8).trim();
+
+                if (existingContent.endsWith("]")) {
+                    existingContent = existingContent.substring(0, existingContent.length() - 1).trim();
+
+                    String newContent = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(buses);
+
+                    newContent = newContent.trim();
+                    if (newContent.startsWith("[") && newContent.endsWith("]")) {
+                        newContent = newContent.substring(1, newContent.length() - 1).trim();
+                    }
+
+                    String finalJson;
+                    if (existingContent.endsWith("[")) {
+                        finalJson = "[" + newContent + "]";
+                    } else {
+                        finalJson = existingContent + ",\n  " + newContent + "\n]";
+                    }
+
+                    Files.writeString(path, finalJson, StandardCharsets.UTF_8, StandardOpenOption.TRUNCATE_EXISTING);
+                    System.out.println("Успешно дозаписано " + buses.size() + " автобусов в '.json': " + path.toAbsolutePath());
+                    return;
+                }
             }
 
-            objectMapper.writerWithDefaultPrettyPrinter().writeValue(path.toFile(), finalListToSave);
-
+            objectMapper.writerWithDefaultPrettyPrinter().writeValue(path.toFile(), buses);
             System.out.println("Успешно сохранено " + buses.size() + " автобусов в '.json': " + path.toAbsolutePath());
 
         } catch (IOException e) {
