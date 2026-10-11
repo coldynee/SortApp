@@ -29,7 +29,7 @@ public class BusValidator {
     }
 
     public static void validateKilometrage(int kilometrage){
-        if (kilometrage < 0 ) {
+        if (kilometrage < 0) {
             throw new IllegalArgumentException("Пробег не может быть отрицательным");
         }
         if (kilometrage > Bus.MAX_KILOMETRAGE) {
