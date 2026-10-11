@@ -105,7 +105,7 @@ public class CsvFileInput implements InputSource {
         try {
             String[] parts = line.split(",");
             if (parts.length != 3) {
-                System.err.println("Обнаружен неверный формат на строке " + num + ", (ожидается 3 поля через ';'): " + line);
+                System.err.println("Обнаружен неверный формат на строке " + num + ", (ожидается 3 поля через ','): " + line);
                 return null;
             }
 

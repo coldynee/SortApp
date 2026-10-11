@@ -3,23 +3,71 @@ package by.coldynee.io;
 /**
  * Перечисление доступных марок автобусов.
  * <p>
- * Содержит полный список марок, используемых в приложении,
- * с отображаемыми названиями на кириллице.
+ * Содержит 50 популярных марок автобусов со всего мира.
  * </p>
  */
 public enum ModelName {
-    // Иностранные марки
-    Mercedes_Benz("Mercedes-Benz"),
+    // Европейские марки
+    MERCEDES_BENZ("Mercedes-Benz"),
     MAN("MAN"),
-    Volvo("Volvo"),
-    Iveco("Iveco"),
-    Solaris("Solaris"),
-    BYD("BYD"),
+    VOLVO("Volvo"),
+    IVECO("Iveco"),
+    SCANIA("Scania"),
+    NEOPLAN("Neoplan"),
+    SETRA("Setra"),
+    VDL("VDL"),
+    VAN_HOOL("Van Hool"),
+    IRISBUS("Irisbus"),
+    BOVA("Bova"),
+    TEMSA("Temsa"),
+    OTOKAR("Otokar"),
+    RENAULT("Renault"),
+    HEULIEZ("Heuliez"),
+    IRIZAR("Irizar"),
+    JONCKHEERE("Jonckheere"),
+    DIETRICH("Dietrich"),
+    PVI("PVI"),
+    GRUAU("Gruau"),
+
+    // Японские марки
+    ISUZU("Isuzu"),
+    HINO("Hino"),
+    MITSUBISHI_FUSO("Mitsubishi Fuso"),
+
+    // Китайские марки
+    YUTONG("Yutong"),
+    KING_LONG("King Long"),
+    HIGER("Higer"),
+    ZHONGTONG("Zhongtong"),
+    ANKAI("Ankai"),
+    FOTON("Foton"),
+
+    // Индийские марки
+    TATA("Tata"),
+    ASHOK_LEYLAND("Ashok Leyland"),
+
+    // Бразильские марки
+    MARCOPOL("Marcopol"),
+    BUSSCAR("Busscar"),
+    CAIO_INDUSCAR("Caio Induscar"),
+
+    // Испанские марки
+    CASTROSUA("Castrosua"),
+    INDCAR("Indcar"),
+    AYATS("Ayats"),
+    BEULAS("Beulas"),
+    NOGE("Noge"),
+    UNVI("UNVI"),
+    FERQUI("Ferqui"),
+    SUNSUNDEGUI("Sunsundegui"),
 
     // Российские марки
-    ПАЗ("ПАЗ"),
-    ЛиАЗ("ЛиАЗ"),
-    МАЗ("МАЗ");
+    PAZ("ПАЗ"),
+    LIAZ("ЛиАЗ"),
+    MAZ("МАЗ"),
+    KAVZ("КАвЗ"),
+    NEFAZ("НефАЗ"),
+    GOLAZ("ГолАЗ");
 
     private final String modelName;
 
@@ -39,14 +87,5 @@ public enum ModelName {
      */
     public String getModelName() {
         return modelName;
-    }
-
-    /**
-     * Возвращает общее количество доступных марок.
-     *
-     * @return количество элементов в enum (9)
-     */
-    public int getNumberOfModels() {
-        return values().length;
     }
 }

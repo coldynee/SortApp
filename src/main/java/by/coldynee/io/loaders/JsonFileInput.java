@@ -59,19 +59,18 @@ public class JsonFileInput implements InputSource {
      */
     @Override
     public List<Bus> load(int count) {
-        List<Bus> buses = new ArrayList<>();
         Path path = Path.of(filePath);
 
         if (!Files.exists(path)) {
             System.err.println("\nОшибка: файл не найден (" + path.toAbsolutePath() + ")");
-            return buses;
+            return List.of();
         }
         try {
             JsonNode rootNode = objectMapper.readTree(path.toFile());
 
             if (!rootNode.isArray()) {
                 System.err.println("Ошибка: Ожидался JSON-массив [...], но получен другой тип данных.");
-                return buses;
+                return List.of();
             }
 
             System.out.println("\nЧтение из файла " + filePath);

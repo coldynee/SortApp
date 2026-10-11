@@ -5,6 +5,8 @@ import by.coldynee.model.Bus;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * Реализация {@link InputSource} для загрузки автобусов с рандомными данными.
@@ -25,20 +27,17 @@ public class RandomInput implements InputSource {
 
     @Override
     public List<Bus> load(int count) {
-        List<Bus> buses = new ArrayList<>();
+        if (count <= 0) return List.of();
 
-        for (int i = 0; i < count; i++) {
-            int randomIndex = random.nextInt(allModelNames.length);
-            String randomStateNumber = generator.randomStateNumber();
-            ModelName randomModelName = allModelNames[randomIndex];
-            int randomKilometrage = random.nextInt(Bus.MAX_KILOMETRAGE) + 1;
-            Bus bus = new Bus.BusBuilder()
-                    .setStateBusNumber(randomStateNumber)
-                    .setModelName(randomModelName.getModelName())
-                    .setKilometrage(randomKilometrage)
-                    .build();
-            buses.add(bus);
-        }
-        return buses;
+        return IntStream.range(0, count)
+                .mapToObj(i -> {
+                    int randomIndex = random.nextInt(allModelNames.length);
+                    return new Bus.BusBuilder()
+                            .setStateBusNumber(generator.randomStateNumber())
+                            .setModelName(allModelNames[randomIndex].getModelName())
+                            .setKilometrage(random.nextInt(Bus.MAX_KILOMETRAGE) + 1)
+                            .build();
+                })
+                .collect(Collectors.toList());
     }
 }
