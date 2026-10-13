@@ -118,7 +118,18 @@ class TxtFileInputTest {
         assertEquals("А111АА77", buses.get(0).getStateBusNumber());
     }
 
+    @Test
+    @DisplayName("Конструктор: выбрасывает исключение, если путь состоит только из расширения")
+    void constructorThrowsOnExtensionOnly() {
+        assertThrows(IllegalArgumentException.class, () -> new TxtFileInput(".txt"));
+        assertThrows(IllegalArgumentException.class, () -> new TxtFileInput(".TXT"));
 
+        assertThrows(IllegalArgumentException.class, () -> new TxtFileInput(".csv"));
+        assertThrows(IllegalArgumentException.class, () -> new TxtFileInput(" .csv "));
+
+        assertThrows(IllegalArgumentException.class, () -> new TxtFileInput(".json"));
+        assertThrows(IllegalArgumentException.class, () -> new TxtFileInput(".JSON"));
+    }
 
     @Test
     @DisplayName("Перехват IOException")

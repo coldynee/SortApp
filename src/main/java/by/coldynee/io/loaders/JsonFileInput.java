@@ -44,6 +44,13 @@ public class JsonFileInput implements InputSource {
             throw new IllegalArgumentException("Путь к файлу не может быть пустым");
         }
         String cleanPath = filePath.trim();
+
+        if (cleanPath.equalsIgnoreCase(".txt") ||
+                cleanPath.equalsIgnoreCase(".csv") ||
+                cleanPath.equalsIgnoreCase(".json")) {
+            throw new IllegalArgumentException("Имя файла не может состоять только из расширения");
+        }
+
         if (!cleanPath.toLowerCase().endsWith(".json")) {
             cleanPath += ".json";
         }
@@ -62,14 +69,14 @@ public class JsonFileInput implements InputSource {
         Path path = Path.of(filePath);
 
         if (!Files.exists(path)) {
-            System.err.println("\nОшибка: файл не найден (" + path.toAbsolutePath() + ")");
+            System.out.println("\nОшибка: файл не найден (" + path.toAbsolutePath() + ")");
             return List.of();
         }
         try {
             JsonNode rootNode = objectMapper.readTree(path.toFile());
 
             if (!rootNode.isArray()) {
-                System.err.println("Ошибка: Ожидался JSON-массив [...], но получен другой тип данных.");
+                System.out.println("Ошибка: Ожидался JSON-массив [...], но получен другой тип данных.");
                 return List.of();
             }
 
@@ -87,7 +94,7 @@ public class JsonFileInput implements InputSource {
                     .collect(Collectors.toList());
 
         } catch (IOException | java.io.UncheckedIOException e) {
-            System.err.println("Ошибка чтения файла: " + e.getMessage());
+            System.out.println("Ошибка чтения файла: " + e.getMessage());
             return List.of();
         }
     }
@@ -113,10 +120,10 @@ public class JsonFileInput implements InputSource {
                     .build();
 
         } catch (NumberFormatException e) {
-            System.err.println("Обнаружен неверный пробег у элемента" + num + ", (должен быть целым числом)");
+            System.out.println("Обнаружен неверный пробег у элемента " + num + ", (должен быть целым числом)");
             return null;
         } catch (IllegalArgumentException e) {
-            System.err.println("Ошибка валидации у элемента " + num + ": " + e.getMessage());
+            System.out.println("Ошибка валидации у элемента " + num + ": " + e.getMessage());
             return null;
         }
     }

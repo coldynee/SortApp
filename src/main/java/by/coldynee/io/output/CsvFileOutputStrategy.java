@@ -22,9 +22,24 @@ public class CsvFileOutputStrategy implements OutputStrategy {
             return;
         }
 
-        Path path = Path.of(filePath.endsWith(".csv") ? filePath : filePath + ".csv");
+        if (filePath == null || filePath.isBlank()) {
+            System.out.println("Ошибка: Имя файла не может быть пустым.");
+            return;
+        }
+
+        String cleanPath = filePath.trim();
+
 
         try {
+            String fileName = Path.of(cleanPath).getFileName().toString().trim();
+            if (fileName.equalsIgnoreCase(".txt") ||
+                    fileName.equalsIgnoreCase(".csv") ||
+                    fileName.equalsIgnoreCase(".json")) {
+                System.out.println("Ошибка: Имя файла не может состоять только из расширения.");
+                return;
+            }
+            Path path = Path.of(normalizePath(filePath, ".csv"));
+
             List<String> lines = buses.stream()
                     .map(bus -> String.format("%s,%s,%d",
                             bus.getStateBusNumber(),
@@ -43,9 +58,31 @@ public class CsvFileOutputStrategy implements OutputStrategy {
             Files.write(path, lines, options);
             System.out.println("Успешно сохранено " + buses.size() + " автобусов в '.csv': " + path.toAbsolutePath());
 
+        } catch (java.nio.file.AccessDeniedException e) {
+            System.out.println("Ошибка доступа: Нет прав на запись в указанную папку.");
+        } catch (java.nio.file.InvalidPathException e) {
+            System.out.println("Ошибка: Указан некорректный путь к файлу.");
         } catch (IOException e) {
-            System.err.println("Ошибка записи в '.csv' файл: " + e.getMessage());
+            System.out.println("Ошибка записи в файл: " + e.getMessage());
             throw new RuntimeException(e);
         }
+    }
+    private String normalizePath(String filePath, String expectedExtension) {
+        String cleanPath = filePath.trim();
+
+        if (cleanPath.toLowerCase().endsWith(expectedExtension)) {
+            return cleanPath;
+        }
+
+        int lastDot = cleanPath.lastIndexOf('.');
+        if (lastDot > 0) {
+            String currentExt = cleanPath.substring(lastDot).toLowerCase();
+            if (currentExt.equalsIgnoreCase(".txt") || currentExt.equalsIgnoreCase(".csv") || currentExt.equalsIgnoreCase(".json")) {
+                System.out.println("Обнаружено неверное разрешение файла, изменено");
+                return cleanPath.substring(0, lastDot) + expectedExtension;
+            }
+        }
+
+        return cleanPath + expectedExtension;
     }
 }
