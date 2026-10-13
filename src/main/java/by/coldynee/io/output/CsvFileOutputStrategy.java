@@ -23,14 +23,14 @@ public class CsvFileOutputStrategy implements OutputStrategy {
         }
 
         if (filePath == null || filePath.isBlank()) {
-            System.err.println("Ошибка: Имя файла не может быть пустым.");
+            System.out.println("Ошибка: Имя файла не может быть пустым.");
             return;
         }
 
         String cleanPath = filePath.trim();
 
         if (cleanPath.equals(".txt") || cleanPath.equals(".csv") || cleanPath.equals(".json")) {
-            System.err.println("Ошибка: Имя файла не может состоять только из расширения.");
+            System.out.println("Ошибка: Имя файла не может состоять только из расширения.");
             return;
         }
 
@@ -56,11 +56,11 @@ public class CsvFileOutputStrategy implements OutputStrategy {
             System.out.println("Успешно сохранено " + buses.size() + " автобусов в '.csv': " + path.toAbsolutePath());
 
         } catch (java.nio.file.AccessDeniedException e) {
-            System.err.println("Ошибка доступа: Нет прав на запись в указанную папку.");
+            System.out.println("Ошибка доступа: Нет прав на запись в указанную папку.");
         } catch (java.nio.file.InvalidPathException e) {
-            System.err.println("Ошибка: Указан некорректный путь к файлу.");
+            System.out.println("Ошибка: Указан некорректный путь к файлу.");
         } catch (IOException e) {
-            System.err.println("Ошибка записи в файл: " + e.getMessage());
+            System.out.println("Ошибка записи в файл: " + e.getMessage());
             throw new RuntimeException(e);
         }
     }
