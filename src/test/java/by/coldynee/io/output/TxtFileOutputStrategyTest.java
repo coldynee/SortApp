@@ -59,6 +59,14 @@ class TxtFileOutputStrategyTest {
     }
 
     @Test
+    @DisplayName("Сохранение с null или пустым путем к файлу")
+    void saveWithNullOrEmptyFilePath() {
+        TxtFileOutputStrategy strategy = new TxtFileOutputStrategy();
+        assertDoesNotThrow(() -> strategy.save(List.of(bus1), null, false));
+        assertDoesNotThrow(() -> strategy.save(List.of(bus1), "   ", false));
+    }
+
+    @Test
     @DisplayName("Сохранение в TXT: режим добавления (append)")
     void saveAppend() throws Exception {
         Path filePath = tempDir.resolve("test.txt");
@@ -87,13 +95,66 @@ class TxtFileOutputStrategyTest {
     }
 
     @Test
-    @DisplayName("Перехват IOException (попытка записи в директорию)")
-    void catchIOException() throws Exception {
-        Path fakeFileDir = tempDir.resolve("fake_directory.txt");
-        Files.createDirectory(fakeFileDir);
-
+    @DisplayName("Сохранение с путем, состоящим только из расширения (покрытие всех веток ||)")
+    void saveWithExtensionOnlyPath() {
         TxtFileOutputStrategy strategy = new TxtFileOutputStrategy();
 
-        assertThrows(RuntimeException.class, () -> strategy.save(List.of(bus1), fakeFileDir.toString(), false));
+        assertDoesNotThrow(() -> strategy.save(List.of(bus1), ".txt", false));
+        assertDoesNotThrow(() -> strategy.save(List.of(bus1), ".csv", false));
+        assertDoesNotThrow(() -> strategy.save(List.of(bus1), ".json", false));
+        assertDoesNotThrow(() -> strategy.save(List.of(bus1), " .TXT ", false));
+
+        assertFalse(Files.exists(tempDir.resolve(".txt")));
+        assertFalse(Files.exists(tempDir.resolve(".csv")));
+        assertFalse(Files.exists(tempDir.resolve(".json")));
+    }
+
+    @Test
+    @DisplayName("Автоматическая замена неверного расширения (покрытие всех веток || в normalizePath)")
+    void normalizePathReplacesAllWrongExtensions() throws Exception {
+        TxtFileOutputStrategy strategy = new TxtFileOutputStrategy();
+
+        strategy.save(List.of(bus1), tempDir.resolve("data.csv").toString(), false);
+        assertTrue(Files.exists(tempDir.resolve("data.txt")));
+        assertFalse(Files.exists(tempDir.resolve("data.csv")));
+
+        strategy.save(List.of(bus1), tempDir.resolve("data2.json").toString(), false);
+        assertTrue(Files.exists(tempDir.resolve("data2.txt")));
+        assertFalse(Files.exists(tempDir.resolve("data2.json")));
+
+        strategy.save(List.of(bus1), tempDir.resolve("data3.txt").toString(), false);
+        assertTrue(Files.exists(tempDir.resolve("data3.txt")));
+    }
+
+    @Test
+    @DisplayName("Корректная обработка InvalidPathException (символ null в пути)")
+    void catchInvalidPathException() {
+        TxtFileOutputStrategy strategy = new TxtFileOutputStrategy();
+        String invalidPath = "invalid\u0000file.txt";
+
+        assertDoesNotThrow(() -> strategy.save(List.of(bus1), invalidPath, false));
+    }
+
+    @Test
+    @DisplayName("Корректная обработка AccessDeniedException (файл только для чтения)")
+    void catchAccessDeniedException() throws Exception {
+        TxtFileOutputStrategy strategy = new TxtFileOutputStrategy();
+        Path readOnlyFile = tempDir.resolve("readonly.txt");
+
+        Files.writeString(readOnlyFile, "initial data");
+        readOnlyFile.toFile().setReadOnly();
+
+        assertDoesNotThrow(() -> strategy.save(List.of(bus1), readOnlyFile.toString(), true));
+
+        readOnlyFile.toFile().setWritable(true);
+    }
+
+    @Test
+    @DisplayName("Корректная обработка общего IOException (несуществующая родительская директория)")
+    void catchGenericIOException() {
+        TxtFileOutputStrategy strategy = new TxtFileOutputStrategy();
+        String pathWithMissingParent = "non_existent_dir_999_xyz/file.txt";
+
+        assertThrows(RuntimeException.class, () -> strategy.save(List.of(bus1), pathWithMissingParent, false));
     }
 }
