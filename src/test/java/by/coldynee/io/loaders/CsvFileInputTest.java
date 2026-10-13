@@ -106,6 +106,20 @@ class CsvFileInputTest {
     }
 
     @Test
+    @DisplayName("Конструктор: выбрасывает исключение, если путь состоит только из расширения")
+    void constructorThrowsOnExtensionOnly() {
+
+        assertThrows(IllegalArgumentException.class, () -> new CsvFileInput(".txt"));
+        assertThrows(IllegalArgumentException.class, () -> new CsvFileInput(".TXT"));
+
+        assertThrows(IllegalArgumentException.class, () -> new CsvFileInput(".csv"));
+        assertThrows(IllegalArgumentException.class, () -> new CsvFileInput(" .csv "));
+
+        assertThrows(IllegalArgumentException.class, () -> new CsvFileInput(".json"));
+        assertThrows(IllegalArgumentException.class, () -> new CsvFileInput(".JSON"));
+    }
+
+    @Test
     @DisplayName("Перехват IOException")
     void catchIOException() throws Exception {
         Path fakeDir = tempDir.resolve("fake_directory.csv");

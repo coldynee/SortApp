@@ -144,6 +144,20 @@ class JsonFileInputTest {
     }
 
     @Test
+    @DisplayName("Конструктор: выбрасывает исключение, если путь состоит только из расширения")
+    void constructorThrowsOnExtensionOnly() {
+
+        assertThrows(IllegalArgumentException.class, () -> new JsonFileInput(".txt"));
+        assertThrows(IllegalArgumentException.class, () -> new JsonFileInput(".TXT"));
+
+        assertThrows(IllegalArgumentException.class, () -> new JsonFileInput(".csv"));
+        assertThrows(IllegalArgumentException.class, () -> new JsonFileInput(" .csv "));
+
+        assertThrows(IllegalArgumentException.class, () -> new JsonFileInput(".json"));
+        assertThrows(IllegalArgumentException.class, () -> new JsonFileInput(".JSON"));
+    }
+
+    @Test
     @DisplayName("Перехват IOException")
     void catchIOException() throws Exception {
         Path fakeFileDir = tempDir.resolve("fake_directory.json");
