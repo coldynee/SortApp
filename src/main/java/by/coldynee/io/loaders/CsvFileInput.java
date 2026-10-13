@@ -59,7 +59,7 @@ public class CsvFileInput implements InputSource {
     /**
      * Читает файл и создает список валидных автобусов.
      * <p>
-     * Метод устойчив к ошибкам: невалидные строки пропускаются с выводом предупреждения в {@link System#err},
+     * Метод устойчив к ошибкам: невалидные строки пропускаются с выводом предупреждения в {@link System#out},
      * а процесс чтения продолжается до конца файла или достижения лимита.
      * </p>
      *
@@ -71,7 +71,7 @@ public class CsvFileInput implements InputSource {
         Path path = Path.of(filePath);
 
         if (!Files.exists(path)) {
-            System.err.println("\nОшибка: файл не найден (" + path.toAbsolutePath() + ")");
+            System.out.println("\nОшибка: файл не найден (" + path.toAbsolutePath() + ")");
             return List.of();
         }
         try (Stream<String> lines = Files.lines(path)) {
@@ -92,7 +92,7 @@ public class CsvFileInput implements InputSource {
                     .collect(Collectors.toList());
 
         } catch (IOException | java.io.UncheckedIOException e) {
-            System.err.println("Ошибка чтения файла: " + e.getMessage());
+            System.out.println("Ошибка чтения файла: " + e.getMessage());
             return List.of();
         }
     }
@@ -109,7 +109,7 @@ public class CsvFileInput implements InputSource {
         try {
             String[] parts = line.split(",");
             if (parts.length != 3) {
-                System.err.println("Обнаружен неверный формат на строке " + num + ", (ожидается 3 поля через ','): " + line);
+                System.out.println("Обнаружен неверный формат на строке " + num + ", (ожидается 3 поля через ','): " + line);
                 return null;
             }
 
@@ -120,10 +120,10 @@ public class CsvFileInput implements InputSource {
                     .build();
 
         } catch (NumberFormatException e) {
-            System.err.println("Обнаружен неверный пробег на строке " + num + ", (должен быть целым числом)");
+            System.out.println("Обнаружен неверный пробег на строке " + num + ", (должен быть целым числом)");
             return null;
         } catch (IllegalArgumentException e) {
-            System.err.println("Ошибка валидации на строке " + num + " (" + line + "): " + e.getMessage());
+            System.out.println("Ошибка валидации на строке " + num + " (" + line + "): " + e.getMessage());
             return null;
         }
     }
