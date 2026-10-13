@@ -46,7 +46,9 @@ public class CsvFileInput implements InputSource {
         }
         String cleanPath = filePath.trim();
 
-        if (cleanPath.equals(".txt") || cleanPath.equals(".csv") || cleanPath.equals(".json")) {
+        if (cleanPath.equalsIgnoreCase(".txt") ||
+                cleanPath.equalsIgnoreCase(".csv") ||
+                cleanPath.equalsIgnoreCase(".json")) {
             throw new IllegalArgumentException("Имя файла не может состоять только из расширения");
         }
 
