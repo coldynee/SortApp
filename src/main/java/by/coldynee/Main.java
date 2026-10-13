@@ -133,6 +133,8 @@ public class Main {
             }
             if (loadedBuses.isEmpty()) {
                 System.out.println("Внимание: данные не были загружены (файл не найден, пуст или отменен ввод).");
+                System.out.println("Список автобусов не изменен");
+                return currentBuses;
             } else {
                 System.out.println("Загрузка данных завершена, всего автобусов: " + loadedBuses.size());
             }
