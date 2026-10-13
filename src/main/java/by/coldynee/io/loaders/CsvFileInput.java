@@ -120,7 +120,7 @@ public class CsvFileInput implements InputSource {
                     .build();
 
         } catch (NumberFormatException e) {
-            System.err.println("Обнаружен неверный пробег на строке" + num + ", (должен быть целым числом)");
+            System.err.println("Обнаружен неверный пробег на строке " + num + ", (должен быть целым числом)");
             return null;
         } catch (IllegalArgumentException e) {
             System.err.println("Ошибка валидации на строке " + num + " (" + line + "): " + e.getMessage());

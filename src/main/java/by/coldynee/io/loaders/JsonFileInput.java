@@ -118,7 +118,7 @@ public class JsonFileInput implements InputSource {
                     .build();
 
         } catch (NumberFormatException e) {
-            System.err.println("Обнаружен неверный пробег у элемента" + num + ", (должен быть целым числом)");
+            System.err.println("Обнаружен неверный пробег у элемента " + num + ", (должен быть целым числом)");
             return null;
         } catch (IllegalArgumentException e) {
             System.err.println("Ошибка валидации у элемента " + num + ": " + e.getMessage());
