@@ -30,15 +30,16 @@ public class JsonOutputStrategy implements OutputStrategy {
         }
 
         String cleanPath = filePath.trim();
-        String fileName = Path.of(cleanPath).getFileName().toString().trim();
-        if (fileName.equalsIgnoreCase(".txt") ||
-                fileName.equalsIgnoreCase(".csv") ||
-                fileName.equalsIgnoreCase(".json")) {
-            System.out.println("Ошибка: Имя файла не может состоять только из расширения.");
-            return;
-        }
+
 
         try {
+            String fileName = Path.of(cleanPath).getFileName().toString().trim();
+            if (fileName.equalsIgnoreCase(".txt") ||
+                    fileName.equalsIgnoreCase(".csv") ||
+                    fileName.equalsIgnoreCase(".json")) {
+                System.out.println("Ошибка: Имя файла не может состоять только из расширения.");
+                return;
+            }
             Path path = Path.of(normalizePath(filePath, ".json"));
 
             if (append && Files.exists(path)) {
