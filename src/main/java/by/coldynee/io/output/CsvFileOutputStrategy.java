@@ -28,15 +28,17 @@ public class CsvFileOutputStrategy implements OutputStrategy {
         }
 
         String cleanPath = filePath.trim();
-
-        if (cleanPath.equals(".txt") || cleanPath.equals(".csv") || cleanPath.equals(".json")) {
+        String fileName = Path.of(cleanPath).getFileName().toString().trim();
+        if (fileName.equalsIgnoreCase(".txt") ||
+                fileName.equalsIgnoreCase(".csv") ||
+                fileName.equalsIgnoreCase(".json")) {
             System.out.println("Ошибка: Имя файла не может состоять только из расширения.");
             return;
         }
 
-        Path path = Path.of(normalizePath(filePath, ".csv"));
-
         try {
+            Path path = Path.of(normalizePath(filePath, ".csv"));
+
             List<String> lines = buses.stream()
                     .map(bus -> String.format("%s,%s,%d",
                             bus.getStateBusNumber(),
@@ -74,7 +76,7 @@ public class CsvFileOutputStrategy implements OutputStrategy {
         int lastDot = cleanPath.lastIndexOf('.');
         if (lastDot > 0) {
             String currentExt = cleanPath.substring(lastDot).toLowerCase();
-            if (currentExt.equals(".txt") || currentExt.equals(".csv") || currentExt.equals(".json")) {
+            if (currentExt.equalsIgnoreCase(".txt") || currentExt.equalsIgnoreCase(".csv") || currentExt.equalsIgnoreCase(".json")) {
                 System.out.println("Обнаружено неверное разрешение файла, изменено");
                 return cleanPath.substring(0, lastDot) + expectedExtension;
             }

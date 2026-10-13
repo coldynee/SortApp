@@ -28,15 +28,17 @@ public class TxtFileOutputStrategy implements OutputStrategy {
         }
 
         String cleanPath = filePath.trim();
-
-        if (cleanPath.equals(".txt") || cleanPath.equals(".csv") || cleanPath.equals(".json")) {
+        String fileName = Path.of(cleanPath).getFileName().toString().trim();
+        if (fileName.equalsIgnoreCase(".txt") ||
+                fileName.equalsIgnoreCase(".csv") ||
+                fileName.equalsIgnoreCase(".json")) {
             System.out.println("Ошибка: Имя файла не может состоять только из расширения.");
             return;
         }
 
-        Path path = Path.of(normalizePath(filePath, ".txt"));
-
         try {
+            Path path = Path.of(normalizePath(filePath, ".txt"));
+
             List<String> lines = buses.stream()
                     .map(bus -> String.format("%s;%s;%d",
                             bus.getStateBusNumber(),
