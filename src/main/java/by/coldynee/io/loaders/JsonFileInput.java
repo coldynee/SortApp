@@ -44,6 +44,11 @@ public class JsonFileInput implements InputSource {
             throw new IllegalArgumentException("Путь к файлу не может быть пустым");
         }
         String cleanPath = filePath.trim();
+
+        if (cleanPath.equals(".txt") || cleanPath.equals(".csv") || cleanPath.equals(".json")) {
+            throw new IllegalArgumentException("Имя файла не может состоять только из расширения");
+        }
+
         if (!cleanPath.toLowerCase().endsWith(".json")) {
             cleanPath += ".json";
         }
