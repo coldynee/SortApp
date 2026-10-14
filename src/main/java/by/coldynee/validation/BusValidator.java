@@ -10,8 +10,28 @@ public class BusValidator {
         }
 
         if (!Bus.RUSSIAN_CAR_NUMBER_PATTERN.matcher(stateBusNumber).matches()) {
-            throw new IllegalArgumentException("Неверный формат гос. номера");
+            throw new IllegalArgumentException(
+                    "Неверный формат гос. номера. Ожидается формат 'А111АА77' или 'А111АА777' " +
+                            "\nИспользуются только буквы: А, В, Е, К, М, Н, О, Р, С, Т, У, Х." +
+                            "\nи цифры для региона (от 01 до 997), цифры для номера могут быть любыми"
+            );
         }
+        String trimmed = stateBusNumber.trim().toUpperCase();
+
+        if (!trimmed.matches(".*\\d{2,3}$")) {
+            throw new IllegalArgumentException("Госномер должен заканчиваться на 2 или 3 цифры");
+        }
+        String regionStr = trimmed.replaceFirst(".*?(\\d{2,3})$", "$1");
+
+        try {
+            int region = Integer.parseInt(regionStr);
+            if (region < 1 || region > 997) {
+                throw new IllegalArgumentException("Код региона в госномере должен быть числом от 1 до 997");
+            }
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Код региона должен быть корректным числом");
+        }
+
     }
     public static void validateModelName(String modelName){
         if (modelName == null || modelName.trim().isEmpty()) {
