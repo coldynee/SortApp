@@ -14,9 +14,6 @@ import static org.junit.jupiter.api.Assertions.*;
 class GenerateRandomStateNumberTest {
 
     private GenerateRandomStateNumber generator;
-
-    // Регулярное выражение для проверки госномера:
-    // 1 буква, 3 цифры (от 001 до 999), 2 буквы, 2 или 3 цифры региона
     private static final String NUMBER_REGEX = "^[АВЕКМНОРСТУХ](?!000)\\d{3}[АВЕКМНОРСТУХ]{2}\\d{2,3}$";
 
     @BeforeEach
@@ -46,7 +43,6 @@ class GenerateRandomStateNumberTest {
     void testRandomStateNumberDeterministic() throws Exception {
         GenerateRandomStateNumber deterministicGenerator = new GenerateRandomStateNumber();
 
-        // Создаем кастомный Random, который возвращает предсказуемые значения
         Random mockRandom = new Random() {
             private int callCount = 0;
 
