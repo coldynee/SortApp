@@ -29,16 +29,36 @@ public class TxtFileOutputStrategy implements OutputStrategy {
 
         String cleanPath = filePath.trim();
 
+        if (cleanPath.endsWith("/") || cleanPath.endsWith("\\") || cleanPath.endsWith(java.io.File.separator)) {
+            System.out.println("Ошибка: Вы указали путь к папке, а не к файлу. Добавьте имя файла.");
+            return;
+        }
+
+        String fileName;
+        int lastSlashIndex = Math.max(cleanPath.lastIndexOf('/'), cleanPath.lastIndexOf('\\'));
+
+        if (lastSlashIndex == -1) {
+            fileName = cleanPath;
+        } else {
+            fileName = cleanPath.substring(lastSlashIndex + 1);
+        }
+        if (fileName.trim().isEmpty()) {
+            System.out.println("Ошибка: Имя файла не может быть пустым.");
+            return;
+        }
+        fileName = fileName.trim();
+        if (fileName.startsWith(".") && fileName.indexOf('.', 1) == -1) {
+            System.out.println("Ошибка: Имя файла не может состоять только из расширения.");
+            return;
+        }
 
         try {
-            String fileName = Path.of(cleanPath).getFileName().toString().trim();
-            if (fileName.equalsIgnoreCase(".txt") ||
-                    fileName.equalsIgnoreCase(".csv") ||
-                    fileName.equalsIgnoreCase(".json")) {
-                System.out.println("Ошибка: Имя файла не может состоять только из расширения.");
+            Path path = Path.of(normalizePath(cleanPath, ".txt"));
+
+            if (path.getParent() != null && !Files.exists(path.getParent())) {
+                System.out.println("Ошибка: Папка '" + path.getParent().toAbsolutePath() + "' не существует.");
                 return;
             }
-            Path path = Path.of(normalizePath(filePath, ".txt"));
 
             List<String> lines = buses.stream()
                     .map(bus -> String.format("%s;%s;%d",
@@ -50,11 +70,6 @@ public class TxtFileOutputStrategy implements OutputStrategy {
             StandardOpenOption[] options = append
                     ? new StandardOpenOption[]{StandardOpenOption.CREATE, StandardOpenOption.APPEND, StandardOpenOption.WRITE}
                     : new StandardOpenOption[]{StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE};
-
-            if (path.getParent() != null && !Files.exists(path.getParent())) {
-                System.out.println("Ошибка: Папка '" + path.getParent().toAbsolutePath() + "' не существует.");
-                return;
-            }
 
             Files.write(path, lines, options);
             System.out.println("Успешно сохранено " + buses.size() + " автобусов в '.txt': " + path.toAbsolutePath());
@@ -78,8 +93,8 @@ public class TxtFileOutputStrategy implements OutputStrategy {
         int lastDot = cleanPath.lastIndexOf('.');
         if (lastDot > 0) {
             String currentExt = cleanPath.substring(lastDot).toLowerCase();
-            if (currentExt.equals(".txt") || currentExt.equals(".csv") || currentExt.equals(".json")) {
-                System.out.println("Обнаружено неверное разрешение файла, изменено");
+            if (currentExt.equalsIgnoreCase(".txt") || currentExt.equalsIgnoreCase(".csv") || currentExt.equalsIgnoreCase(".json")) {
+                System.out.println("Обнаружено неверное разрешение файла, изменено на '" + expectedExtension + "'");
                 return cleanPath.substring(0, lastDot) + expectedExtension;
             }
         }

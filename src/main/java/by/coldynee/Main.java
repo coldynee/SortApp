@@ -63,7 +63,7 @@ public class Main {
                 case "0" -> {
                     isRunning = handleExit(scanner);
                 }
-                default -> System.out.println("Введенные данные некорректны, ожидается число (0-6), повторите попытку");
+                default -> System.out.println("Введенные данные некорректны, ожидается число (0-7), повторите попытку");
             }
         }
         scanner.close();
@@ -328,7 +328,7 @@ public class Main {
             int inputChoice = readIntInRange(scanner, "Выберите действие (0-1): ", 0, 1);
             if (inputChoice == 1) {
                 buses = new CustomArrayList<>();
-                System.out.println("Данные успешно очищены2");
+                System.out.println("Данные успешно очищены");
             }
         }
         return buses;
@@ -343,7 +343,7 @@ public class Main {
                 int value = Integer.parseInt(input);
                 if (value >= 0 && zeroSupported) return value;
                 if (value > 0) return value;
-                System.out.println("Ожидается число больше нуля");
+                System.out.println(zeroSupported ? "Ожидается число 0 или больше" : "Ожидается число больше нуля");
             } catch (NumberFormatException e) {
                 System.out.println("Введенные данные некорректны, ожидается целое число");
             }
