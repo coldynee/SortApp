@@ -94,7 +94,7 @@ public class JsonFileInput implements InputSource {
                     .collect(Collectors.toList());
 
         } catch (IOException | java.io.UncheckedIOException e) {
-            System.out.println("Ошибка чтения файла: " + e.getMessage());
+            System.out.println("Ошибка чтения файла: файл поврежден или имеет неверный формат");
             return List.of();
         }
     }
