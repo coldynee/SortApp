@@ -40,13 +40,27 @@ public class TxtFileInput implements InputSource {
         }
         String cleanPath = filePath.trim();
 
-        if (cleanPath.equalsIgnoreCase(".txt") ||
-                cleanPath.equalsIgnoreCase(".csv") ||
-                cleanPath.equalsIgnoreCase(".json")) {
+        if (cleanPath.endsWith("/") || cleanPath.endsWith("\\") || cleanPath.endsWith(java.io.File.separator)) {
+            throw new IllegalArgumentException("Вы указали путь к папке, а не к файлу. Добавьте имя файла.");
+        }
+
+        String fileName;
+        int lastSlashIndex = Math.max(cleanPath.lastIndexOf('/'), cleanPath.lastIndexOf('\\'));
+        if (lastSlashIndex == -1) {
+            fileName = cleanPath;
+        } else {
+            fileName = cleanPath.substring(lastSlashIndex + 1);
+        }
+        if (fileName.trim().isEmpty()) {
+            throw new IllegalArgumentException("Имя файла не может быть пустым.");
+        }
+        fileName = fileName.trim();
+
+        if (fileName.startsWith(".") && fileName.indexOf('.', 1) == -1) {
             throw new IllegalArgumentException("Имя файла не может состоять только из расширения");
         }
 
-        if (!cleanPath.toLowerCase().endsWith(".txt")) {
+        if (!fileName.toLowerCase().endsWith(".txt")) {
             cleanPath += ".txt";
         }
         this.filePath = cleanPath;

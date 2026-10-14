@@ -29,16 +29,36 @@ public class CsvFileOutputStrategy implements OutputStrategy {
 
         String cleanPath = filePath.trim();
 
+        if (cleanPath.endsWith("/") || cleanPath.endsWith("\\") || cleanPath.endsWith(java.io.File.separator)) {
+            System.out.println("Ошибка: Вы указали путь к папке, а не к файлу. Добавьте имя файла.");
+            return;
+        }
+
+        String fileName;
+        int lastSlashIndex = Math.max(cleanPath.lastIndexOf('/'), cleanPath.lastIndexOf('\\'));
+
+        if (lastSlashIndex == -1) {
+            fileName = cleanPath;
+        } else {
+            fileName = cleanPath.substring(lastSlashIndex + 1);
+        }
+        if (fileName.trim().isEmpty()) {
+            System.out.println("Ошибка: Имя файла не может быть пустым.");
+            return;
+        }
+        fileName = fileName.trim();
+        if (fileName.startsWith(".") && fileName.indexOf('.', 1) == -1) {
+            System.out.println("Ошибка: Имя файла не может состоять только из расширения.");
+            return;
+        }
 
         try {
-            String fileName = Path.of(cleanPath).getFileName().toString().trim();
-            if (fileName.equalsIgnoreCase(".txt") ||
-                    fileName.equalsIgnoreCase(".csv") ||
-                    fileName.equalsIgnoreCase(".json")) {
-                System.out.println("Ошибка: Имя файла не может состоять только из расширения.");
+            Path path = Path.of(normalizePath(cleanPath, ".csv"));
+
+            if (path.getParent() != null && !Files.exists(path.getParent())) {
+                System.out.println("Ошибка: Папка '" + path.getParent().toAbsolutePath() + "' не существует.");
                 return;
             }
-            Path path = Path.of(normalizePath(filePath, ".csv"));
 
             List<String> lines = buses.stream()
                     .map(bus -> String.format("%s,%s,%d",
@@ -78,7 +98,7 @@ public class CsvFileOutputStrategy implements OutputStrategy {
         if (lastDot > 0) {
             String currentExt = cleanPath.substring(lastDot).toLowerCase();
             if (currentExt.equalsIgnoreCase(".txt") || currentExt.equalsIgnoreCase(".csv") || currentExt.equalsIgnoreCase(".json")) {
-                System.out.println("Обнаружено неверное разрешение файла, изменено");
+                System.out.println("Обнаружено неверное разрешение файла, изменено на '" + expectedExtension + "'");
                 return cleanPath.substring(0, lastDot) + expectedExtension;
             }
         }
