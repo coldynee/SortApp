@@ -123,7 +123,7 @@ public class Main {
                     System.out.println("При вводе имени файла будет произведена поиск внутри папки приложения");
                     System.out.println("Введите имя '.json' файла: ");
                     try {
-                        inputSource = new CsvFileInput(scanner.nextLine().trim());
+                        inputSource = new JsonFileInput(scanner.nextLine().trim());
                     } catch (IllegalArgumentException e) {
                         System.out.println("Ошибка: " + e.getMessage());
                         continue;
@@ -394,7 +394,7 @@ public class Main {
         System.out.println("Осипов Павел");
         System.out.println("Дамаскин Максим");
         System.out.println("Алиев Евгений");
-        System.out.println("\nДля продолжения веедите любое значение или нажмите 'Enter'");
+        System.out.println("\nДля продолжения введите любое значение или нажмите 'Enter'");
         scanner.nextLine();
     }
 
