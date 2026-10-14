@@ -9,20 +9,21 @@ public class BusValidator {
             throw new IllegalArgumentException("Гос. номер не может быть пустым");
         }
 
-        if (!Bus.RUSSIAN_CAR_NUMBER_PATTERN.matcher(stateBusNumber).matches()) {
+        String trimmed = stateBusNumber.trim().toUpperCase();
+
+        if (!Bus.RUSSIAN_CAR_NUMBER_PATTERN.matcher(trimmed).matches()) {
             throw new IllegalArgumentException(
                     "Неверный формат гос. номера. Ожидается формат 'А111АА77' или 'А111АА777' " +
                             "\nИспользуются только буквы: А, В, Е, К, М, Н, О, Р, С, Т, У, Х." +
                             "\nи цифры для региона (от 01 до 997), цифры для номера могут быть любыми"
             );
         }
-        String trimmed = stateBusNumber.trim().toUpperCase();
 
         if (!trimmed.matches(".*\\d{2,3}$")) {
             throw new IllegalArgumentException("Госномер должен заканчиваться на 2 или 3 цифры");
         }
-        String regionStr = trimmed.replaceFirst(".*?(\\d{2,3})$", "$1");
 
+        String regionStr = trimmed.replaceFirst(".*?(\\d{2,3})$", "$1");
         try {
             int region = Integer.parseInt(regionStr);
             if (region < 1 || region > 997) {
