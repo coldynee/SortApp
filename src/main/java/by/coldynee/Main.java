@@ -29,6 +29,7 @@ import java.util.Scanner;
  * </p>
  */
 public class Main {
+    private static final int MAX_DISPLAY_LIMIT = 30;
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         List<Bus> buses = new CustomArrayList<>();
@@ -38,24 +39,27 @@ public class Main {
 
         while (isRunning) {
             System.out.println("\nГлавное меню");
-            System.out.println("1. Загрузить данные");
+            System.out.println("Статус: " + ((buses.isEmpty()) ? "объекты отсутствуют" : "объекты загружены"));
+            System.out.println("\n1. Загрузить данные");
             System.out.println("2. Показать текущие данные");
             System.out.println("3. Сортировка данных");
             System.out.println("4. Многопоточный поиск вхождений");
             System.out.println("5. Сохранение данных в файл");
-            System.out.println("6. Информация о программе");
+            System.out.println("6. Очистить данные");
+            System.out.println("7. Информация о программе");
             System.out.println("0. Выход из программы");
-            System.out.println("Выберите действие (0-6): ");
+            System.out.println("Выберите действие (0-7): ");
 
             String menuChoice = scanner.nextLine().trim();
 
             switch (menuChoice) {
                 case "1" -> buses = handleDataInput(scanner, buses);
-                case "2" -> handleDisplayData(buses);
+                case "2" -> handleDisplayData(scanner, buses);
                 case "3" -> handleSorting(scanner, buses);
                 case "4" -> handleMultithreadedSearch(scanner, buses);
                 case "5" -> handleDataOutput(scanner, buses);
-                case "6" -> printInfo();
+                case "6" -> buses = handleErase(scanner, buses);
+                case "7" -> printInfo(scanner);
                 case "0" -> {
                     isRunning = handleExit(scanner);
                 }
@@ -77,13 +81,16 @@ public class Main {
             System.out.println("0. Назад в главное меню");
 
             int inputChoice = readIntInRange(scanner, "Выберите действие (0-5): ", 0, 5);
-
+            int count;
             if (inputChoice == 0) {
-                System.out.println("Возвращение в главное меню");
                 return currentBuses;
+            } else if (inputChoice == 1 || inputChoice == 2) {
+                count = readInt(scanner, "Выберите количество автобусов для загрузки", false);
+            } else {
+                count = readInt(scanner, "Выберите количество автобусов для загрузки (0 чтобы загрузить все)", true);
             }
 
-            int count = readPositiveInt(scanner, "Выберите количество автобусов для загрузки");
+
 
             InputSource inputSource = null ;
             switch (inputChoice) {
@@ -114,7 +121,7 @@ public class Main {
             }
             boolean isAppend = false;
             if (!currentBuses.isEmpty()) {
-                System.out.println("Режимы загрузки");
+                System.out.println("\nРежимы загрузки");
                 System.out.println("1. Дозаписать к существующим данным");
                 System.out.println("2. Перезаписать текущие данные");
                 int loadMode = readIntInRange(scanner, "Выберите режим (1-2)", 1, 2);
@@ -132,7 +139,7 @@ public class Main {
                 loadedBuses.addAll(inputSource.load(count));
             }
             if (loadedBuses.isEmpty()) {
-                System.out.println("Внимание: данные не были загружены (файл не найден, пуст или отменен ввод).");
+                System.out.println("\nВнимание: данные не были загружены (файл не найден, пуст или отменен ввод).");
                 System.out.println("Список автобусов не изменен");
                 return currentBuses;
             } else {
@@ -142,23 +149,34 @@ public class Main {
         }
     }
 
-    private static void handleDisplayData(List<Bus> buses) {
+    private static void handleDisplayData(Scanner scanner, List<Bus> buses) {
         if (buses.isEmpty()) {
-            System.out.println("Список автобусов пуст, необходимо заполнить");
+            System.out.println("\nСписок автобусов пуст, необходимо заполнить");
         } else {
-            int limit = Math.min(buses.size(), 30);
+            System.out.println();
+            int limit = Math.min(buses.size(), MAX_DISPLAY_LIMIT);
             for (int i = 0; i < limit; i++) {
                 System.out.printf("%3d. %s%n", (i + 1), buses.get(i));
             }
-            if (buses.size() > 30) {
-                System.out.println("Показаны первые 30 записанных (осталось " + (buses.size() - 30) + ")");
+            if (buses.size() > MAX_DISPLAY_LIMIT) {
+                System.out.println("\nПоказаны первые 30 записанных (осталось " + (buses.size() - MAX_DISPLAY_LIMIT) + ")");
+                System.out.println("Показать весь список? (это может засорить консоль)");
+                System.out.println("1. Да, показать");
+                System.out.println("0. Нет, вернуться в главное меню");
+
+                int input = readIntInRange(scanner, "Введите значение (0-1): ", 0, 1);
+                if (input == 1) {
+                    for (int i = 0; i < buses.size(); i++) {
+                        System.out.printf("%3d. %s%n", (i + 1), buses.get(i));
+                    }
+                }
             }
         }
     }
 
     private static void handleSorting(Scanner scanner, List<Bus> buses) {
         if (buses.isEmpty()) {
-            System.out.println("Список автобусов пуст, необходимо заполнить");
+            System.out.println("\nСписок автобусов пуст, необходимо заполнить");
             return;
         }
         while (true) {
@@ -169,7 +187,6 @@ public class Main {
             System.out.println("0. Назад в главное меню");
             int sortingChoice = readIntInRange(scanner, "Выберите алгоритм (1-3) или '0' для выхода: ", 0, 3);
             if (sortingChoice == 0) {
-                System.out.println("Возвращение в главное меню");
                 return;
             }
 
@@ -212,11 +229,11 @@ public class Main {
 
     private static void handleMultithreadedSearch(Scanner scanner, List<Bus> buses) {
         if (buses.isEmpty()) {
-            System.out.println("Список автобусов пуст, необходимо заполнить");
+            System.out.println("\nСписок автобусов пуст, необходимо заполнить");
             return;
         }
 
-        System.out.println("Поддерживаемые параметры поиска");
+        System.out.println("\nПоддерживаемые параметры поиска");
         System.out.println("1. Государственный номер");
         System.out.println("2. Название модели");
         System.out.println("3. Пробег");
@@ -224,7 +241,6 @@ public class Main {
         System.out.println("0. Назад в главное меню");
         int choiceInput = readIntInRange(scanner, "Выберите параметр (1-4) или '0' для возврата", 0, 4);
         if (choiceInput == 0) {
-            System.out.println("Возвращение в главное меню");
             return;
         }
         System.out.println("Введите параметр");
@@ -258,24 +274,23 @@ public class Main {
 
     private static void handleDataOutput(Scanner scanner, List<Bus> buses) {
         if (buses.isEmpty()) {
-            System.out.println("Список автобусов пуст, необходимо заполнить");
+            System.out.println("\nСписок автобусов пуст, необходимо заполнить");
             return;
         }
 
         while (true) {
-            System.out.println("Поддерживаемые форматы файлов");
+            System.out.println("\nПоддерживаемые форматы файлов");
             System.out.println("1. '.txt' - объекты через ';'");
             System.out.println("2. '.csv' - объекты через ','");
             System.out.println("3. '.json' - массив объектов");
             System.out.println("0. Назад в главное меню");
             int formatChoice = readIntInRange(scanner, "Выберите формат (1-3) или '0' для выхода: ", 0, 3);
             if (formatChoice == 0) {
-                System.out.println("Возвращение в главное меню");
                 return;
             }
 
             while (true) {
-                System.out.println("Режимы записи");
+                System.out.println("\nРежимы записи");
                 System.out.println("1. Перезаписать файл");
                 System.out.println("2. Режим добавления данных в конец файла");
                 System.out.println("0. Назад");
@@ -303,13 +318,30 @@ public class Main {
         }
     }
 
+    private static List<Bus> handleErase(Scanner scanner, List<Bus> buses) {
+        if (buses.isEmpty()) {
+            System.out.println("\nСписок автобусов пуст, необходимо заполнить");
+        } else {
+            System.out.println("\nСтирание данных необратимо, вы уверены?");
+            System.out.println("1. Да, стереть");
+            System.out.println("0. Нет, вернуться в главное меню");
+            int inputChoice = readIntInRange(scanner, "Выберите действие (0-1): ", 0, 1);
+            if (inputChoice == 1) {
+                buses = new CustomArrayList<>();
+                System.out.println("Данные успешно очищены2");
+            }
+        }
+        return buses;
+    }
+
     //Вспомогательные методы для проверки значений
-    private static int readPositiveInt(Scanner scanner, String message) {
+    private static int readInt(Scanner scanner, String message, boolean zeroSupported) {
         while (true) {
             System.out.print(message + " ");
             String input = scanner.nextLine().trim();
             try {
                 int value = Integer.parseInt(input);
+                if (value >= 0 && zeroSupported) return value;
                 if (value > 0) return value;
                 System.out.println("Ожидается число больше нуля");
             } catch (NumberFormatException e) {
@@ -333,7 +365,7 @@ public class Main {
     }
 
     //Вспомогательные методы для вывода информации
-    private static void printInfo() {
+    private static void printInfo(Scanner scanner) {
         System.out.println("\nПриложение SortApp служит для работы с объектами автобусов");
         System.out.println("\nПоддерживаемые функции");
         System.out.println("Чтение автобусов из файла (txt, csv, json),");
@@ -347,6 +379,8 @@ public class Main {
         System.out.println("Осипов Павел");
         System.out.println("Дамаскин Максим");
         System.out.println("Алиев Евгений");
+        System.out.println("\nДля продолжения веедите любое значение или нажмите 'Enter'");
+        scanner.nextLine();
     }
 
     private static void printHeader() {
