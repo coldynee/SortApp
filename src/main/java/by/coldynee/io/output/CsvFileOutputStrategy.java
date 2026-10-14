@@ -55,6 +55,11 @@ public class CsvFileOutputStrategy implements OutputStrategy {
                     ? new StandardOpenOption[]{StandardOpenOption.CREATE, StandardOpenOption.APPEND, StandardOpenOption.WRITE}
                     : new StandardOpenOption[]{StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE};
 
+            if (path.getParent() != null && !Files.exists(path.getParent())) {
+                System.out.println("Ошибка: Папка '" + path.getParent().toAbsolutePath() + "' не существует.");
+                return;
+            }
+
             Files.write(path, lines, options);
             System.out.println("Успешно сохранено " + buses.size() + " автобусов в '.csv': " + path.toAbsolutePath());
 

@@ -68,6 +68,11 @@ public class JsonOutputStrategy implements OutputStrategy {
                 }
             }
 
+            if (path.getParent() != null && !Files.exists(path.getParent())) {
+                System.out.println("Ошибка: Папка '" + path.getParent().toAbsolutePath() + "' не существует.");
+                return;
+            }
+
             objectMapper.writerWithDefaultPrettyPrinter().writeValue(path.toFile(), buses);
             System.out.println("Успешно сохранено " + buses.size() + " автобусов в '.json': " + path.toAbsolutePath());
 
