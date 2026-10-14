@@ -100,19 +100,34 @@ public class Main {
                     System.out.println("Внимание: поддерживается формат ввода абсолютного пути, а также только имени файла");
                     System.out.println("При вводе имени файла будет произведена поиск внутри папки приложения");
                     System.out.println("Введите имя '.txt' файла или полный путь: ");
-                    inputSource = new TxtFileInput(scanner.nextLine().trim());
+                    try {
+                        inputSource = new TxtFileInput(scanner.nextLine().trim());
+                    } catch (IllegalArgumentException e) {
+                        System.out.println("Ошибка: " + e.getMessage());
+                        continue;
+                    }
                 }
                 case 4 -> {
                     System.out.println("Внимание: поддерживается формат ввода абсолютного пути, а также только имени файла");
                     System.out.println("При вводе имени файла будет произведена поиск внутри папки приложения");
                     System.out.println("Введите имя '.csv' файла: ");
-                    inputSource = new CsvFileInput(scanner.nextLine().trim());
+                    try {
+                        inputSource = new CsvFileInput(scanner.nextLine().trim());
+                    } catch (IllegalArgumentException e) {
+                        System.out.println("Ошибка: " + e.getMessage());
+                        continue;
+                    }
                 }
                 case 5 -> {
                     System.out.println("Внимание: поддерживается формат ввода абсолютного пути, а также только имени файла");
                     System.out.println("При вводе имени файла будет произведена поиск внутри папки приложения");
                     System.out.println("Введите имя '.json' файла: ");
-                    inputSource = new JsonFileInput(scanner.nextLine().trim());
+                    try {
+                        inputSource = new CsvFileInput(scanner.nextLine().trim());
+                    } catch (IllegalArgumentException e) {
+                        System.out.println("Ошибка: " + e.getMessage());
+                        continue;
+                    }
                 }
                 default -> {
                     System.out.println("Введенные данные некорректны, ожидается число (1-5): ");
