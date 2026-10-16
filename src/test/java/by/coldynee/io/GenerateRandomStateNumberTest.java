@@ -1,12 +1,12 @@
 package by.coldynee.io;
 
+import by.coldynee.model.Bus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
-import java.text.NumberFormat;
 import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -14,7 +14,6 @@ import static org.junit.jupiter.api.Assertions.*;
 class GenerateRandomStateNumberTest {
 
     private GenerateRandomStateNumber generator;
-    private static final String NUMBER_REGEX = "^[АВЕКМНОРСТУХ](?!000)\\d{3}[АВЕКМНОРСТУХ]{2}\\d{2,3}$";
 
     @BeforeEach
     void setUp() {
@@ -27,7 +26,7 @@ class GenerateRandomStateNumberTest {
         String result = generator.randomStateNumber();
 
         assertNotNull(result, "Сгенерированный номер не должен быть null");
-        assertTrue(result.matches(NUMBER_REGEX),
+        assertTrue(Bus.RUSSIAN_CAR_NUMBER_PATTERN.matcher(result).matches(),
                 "Номер '" + result + "' не соответствует формату А123БВ777");
     }
 
@@ -35,7 +34,7 @@ class GenerateRandomStateNumberTest {
     @DisplayName("Многократная проверка для покрытия различных случайных значений")
     void testRandomStateNumberMultipleTimes() {
         String result = generator.randomStateNumber();
-        assertTrue(result.matches(NUMBER_REGEX));
+        assertTrue(Bus.RUSSIAN_CAR_NUMBER_PATTERN.matcher(result).matches());
     }
 
     @Test
@@ -48,18 +47,16 @@ class GenerateRandomStateNumberTest {
 
             @Override
             public int nextInt(int bound) {
-                int result;
-                if (bound == 12) { // Запрос буквы (LETTERS.length)
-                    if (callCount == 0) result = 0;      // 1-я буква: индекс 0 ('А')
-                    else if (callCount == 2) result = 1; // 2-я буква: индекс 1 ('В')
-                    else result = 2;                     // 3-я буква: индекс 2 ('Е')
-                } else if (bound == 999) { // Запрос цифр номера
-                    result = 0; // Вернет 0, в коде прибавится 1 -> 001
-                } else { // Запрос региона (REGIONS.length)
-                    result = 0; // Индекс 0 ("01")
-                }
-                callCount++;
-                return result;
+                return switch (bound) {
+                    case 12 -> switch (callCount++) { // LETTERS.length
+                        case 0 -> 0; // 1-я буква: 'А'
+                        case 1 -> 1; // 2-я буква: 'В'
+                        case 2 -> 2; // 3-я буква: 'Е'
+                        default -> 0;
+                    };
+                    case 999 -> 0; // Цифры номера: 0 + 1 = 1 -> "001"
+                    default -> 0;   // Регион: индекс 0 -> "01" (REGIONS.length)
+                };
             }
         };
 

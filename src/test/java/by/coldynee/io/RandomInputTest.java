@@ -13,9 +13,6 @@ class RandomInputTest {
 
     private RandomInput randomInput;
 
-    // Тот же Regex для проверки номера, что мы использовали ранее
-    private static final String NUMBER_REGEX = "^[АВЕКМНОРСТУХ](?!000)\\d{3}[АВЕКМНОРСТУХ]{2}\\d{2,3}$";
-
     @BeforeEach
     void setUp() {
         randomInput = new RandomInput();
@@ -34,11 +31,8 @@ class RandomInputTest {
     @Test
     @DisplayName("Проверка генерации при нулевом или отрицательном запросе")
     void testLoadWithZeroOrNegativeCount() {
-        List<Bus> zeroBuses = randomInput.load(0);
-        assertTrue(zeroBuses.isEmpty(), "При запросе 0 автобусов список должен быть пустым");
-
-        List<Bus> negativeBuses = randomInput.load(-5);
-        assertTrue(negativeBuses.isEmpty(), "При отрицательном запросе список должен быть пустым");
+        assertTrue(randomInput.load(0).isEmpty(), "При запросе 0 автобусов список должен быть пустым");
+        assertTrue(randomInput.load(-5).isEmpty(), "При отрицательном запросе список должен быть пустым");
     }
 
     @Test
@@ -55,7 +49,7 @@ class RandomInputTest {
                     () -> assertNotNull(bus, "Сгенерированный автобус не должен быть null"),
 
                     () -> assertNotNull(bus.getStateBusNumber(), "Госномер не должен быть null"),
-                    () -> assertTrue(bus.getStateBusNumber().matches(NUMBER_REGEX),
+                    () -> assertTrue(Bus.RUSSIAN_CAR_NUMBER_PATTERN.matcher(bus.getStateBusNumber()).matches(),
                             "Госномер " + bus.getStateBusNumber() + " не соответствует формату"),
 
                     () -> assertNotNull(bus.getModelName(), "Модель автобуса не должна быть null"),
