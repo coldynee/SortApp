@@ -96,8 +96,9 @@ abstract class AbstractSortingStrategyTest {
     @Test
     @DisplayName("Сортировка списка из одного элемента")
     void testSortSingleElement() {
-        List<Bus> list = createBuses(500);
-        Bus only = list.get(0);
+        List<Bus> list = new ArrayList<>();
+        Bus only = createBus("А111АА77", "Volvo", 100000);
+        list.add(only);
 
         strategy.sort(list, BusComparators.BY_KILOMETRAGE);
 
