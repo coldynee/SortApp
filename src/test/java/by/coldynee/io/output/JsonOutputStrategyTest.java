@@ -216,12 +216,67 @@ class JsonOutputStrategyTest {
     }
 
     @Test
-    @DisplayName("Корректная обработка общего IOException (несуществующая родительская директория)")
-    void catchGenericIOException() {
-        JsonOutputStrategy strategy = new JsonOutputStrategy();
+    @DisplayName("Сохранение: имя файла становится пустым после извлечения")
+    void saveHandlesEmptyFileNameAfterTrim() {
+        OutputStrategy strategy = new JsonOutputStrategy();
+        assertDoesNotThrow(() -> strategy.save(List.of(bus1), "folder/ ", false));
+    }
 
-        String pathWithMissingParent = "non_existent_dir_999_xyz/file.json";
+    @Test
+    @DisplayName("Сохранение: путь к папке, имя которой выглядит как расширение")
+    void saveHandlesExtensionOnlyInFolder() {
+        OutputStrategy strategy = new JsonOutputStrategy();
 
-        assertThrows(RuntimeException.class, () -> strategy.save(List.of(bus1), pathWithMissingParent, false));
+        assertDoesNotThrow(() -> strategy.save(List.of(bus1), "folder/.csv", false));
+    }
+
+    @Test
+    @DisplayName("Сохранение: родительская папка не существует (покрывает проверку !Files.exists) ")
+    void saveHandlesMissingParentDirectory() {
+        OutputStrategy strategy = new JsonOutputStrategy();
+
+        assertDoesNotThrow(() -> strategy.save(List.of(bus1), "non_existent_dir_999_xyz/file.csv", false));
+    }
+
+    @Test
+    @DisplayName("Сохранение: полное покрытие всех веток проверки разделителей (||)")
+    void saveCoversAllSeparatorBranches() {
+        OutputStrategy strategy = new JsonOutputStrategy();
+
+        assertDoesNotThrow(() -> strategy.save(List.of(bus1), "a/", false));
+        assertDoesNotThrow(() -> strategy.save(List.of(bus1), "a\\", false));
+        assertDoesNotThrow(() -> strategy.save(List.of(bus1), "a" + java.io.File.separator, false));
+    }
+
+    @Test
+    @DisplayName("Сохранение: полное покрытие веток проверки имени файла (&&)")
+    void saveCoversFileNameBranches() {
+        OutputStrategy strategy = new JsonOutputStrategy();
+
+        assertDoesNotThrow(() -> strategy.save(List.of(bus1), "folder/   ", false));
+        assertDoesNotThrow(() -> strategy.save(List.of(bus1), "folder/.hidden.txt", false));
+    }
+
+    @Test
+    @DisplayName("Сохранение: полное покрытие веток проверки родительской директории (&&)")
+    void saveCoversParentDirectoryBranches() {
+        OutputStrategy strategy = new JsonOutputStrategy();
+
+        assertDoesNotThrow(() -> strategy.save(List.of(bus1), "non_existent_dir_12345/file.txt", false));
+        assertDoesNotThrow(() -> strategy.save(List.of(bus1), tempDir.resolve("valid_file.txt").toString(), false));
+        assertDoesNotThrow(() -> strategy.save(List.of(bus1), "just_a_file.txt", false));
+    }
+
+    @Test
+    @DisplayName("Корректная обработка общего IOException (попытка записи в файл, который является директорией)")
+    void catchGenericIOException() throws Exception {
+        OutputStrategy strategy = new JsonOutputStrategy();
+
+        Path fakeFileAsDir = tempDir.resolve("fake_file_instead_of_dir");
+        Files.writeString(fakeFileAsDir, "I am a file, not a directory");
+
+        String pathInsideFakeFile = fakeFileAsDir.toString() + "/inside.csv";
+
+        assertThrows(RuntimeException.class, () -> strategy.save(List.of(bus1), pathInsideFakeFile, false));
     }
 }
