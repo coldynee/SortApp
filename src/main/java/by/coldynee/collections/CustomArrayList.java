@@ -1,42 +1,39 @@
+
 package by.coldynee.collections;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 public class CustomArrayList<T> implements Collection<T> {
 
-	private T[] elements;
+    private T[] elements;
     private int size = 0;
 
     @SuppressWarnings("unchecked")
     public CustomArrayList() {
-    	elements = (T[]) new Object[2];
+        elements = (T[]) new Object[2];
     }
-    
-	@Override
-	public int size() {
-		return size;
-	}
 
-	@Override
-	public boolean isEmpty() {
-		return size == 0;
-	}
+    @Override
+    public int size() {
+        return size;
+    }
 
-	@Override
-	public boolean contains(Object o) {
-		if (o == null) return false;
-		for (int i = 0; i < size; i++) {
+    @Override
+    public boolean isEmpty() {
+        return size == 0;
+    }
+
+    @Override
+    public boolean contains(Object o) {
+        for (int i = 0; i < size; i++) {
             if (o.equals(elements[i])) {
                 return true;
             }
         }
         return false;
-	}
+    }
 
-	@Override
+    @Override
     public Iterator<T> iterator() {
         return new Iterator<T>() {
             private int cursor = 0;
@@ -69,14 +66,14 @@ public class CustomArrayList<T> implements Collection<T> {
         };
     }
 
-	@Override
-	public Object[] toArray() {
-		return Arrays.copyOf(elements, size);
-	}
+    @Override
+    public Object[] toArray() {
+        return Arrays.copyOf(elements, size);
+    }
 
-	@Override
-	public <E> E[] toArray(E[] a) {
-		if (a.length < size) {
+    @Override
+    public <E> E[] toArray(E[] a) {
+        if (a.length < size) {
             return (E[]) Arrays.copyOf(elements, size, a.getClass());
         }
         System.arraycopy(elements, 0, a, 0, size);
@@ -84,30 +81,29 @@ public class CustomArrayList<T> implements Collection<T> {
             a[size] = null;
         }
         return a;
-	}
+    }
 
-	@Override
-	public boolean add(T e) {
-		ensureCapacity();
-		elements[size] = e;
-		size++;
-		return true;
-	}
+    @Override
+    public boolean add(T e) {
+        ensureCapacity();
+        elements[size] = e;
+        size++;
+        return true;
+    }
 
-	@Override
-	public boolean remove(Object o) {
-		if (o == null) return false;
-		for (int i = 0; i < size; i++) {
+    @Override
+    public boolean remove(Object o) {
+        for (int i = 0; i < size; i++) {
             if (o.equals(elements[i])) {
                 removeAt(i);
                 return true;
             }
         }
         return false;
-	}
+    }
 
-	@Override
-	public boolean containsAll(Collection<?> c) {
+    @Override
+    public boolean containsAll(Collection<?> c) {
         for (Object e : c) {
             if (!contains(e)) {
                 return false;
@@ -116,64 +112,69 @@ public class CustomArrayList<T> implements Collection<T> {
         return true;
     }
 
-	@Override
-	public boolean addAll(Collection<? extends T> c) {
+    @Override
+    public boolean addAll(Collection<? extends T> c) {
         boolean modified = false;
         for (T item : c) {
             if (add(item)) {
                 modified = true;
             }
         }
-        
+
         return modified;
     }
 
-	@Override
-	public boolean removeAll(Collection<?> c) {
-		boolean modified = false;
-		for (int i = size - 1; i >= 0; i--) {
+    @Override
+    public boolean removeAll(Collection<?> c) {
+        boolean modified = false;
+        for (int i = size - 1; i >= 0; i--) {
             if (c.contains(elements[i])) {
                 removeAt(i);
                 modified = true;
             }
         }
         return modified;
-	}
+    }
 
-	@Override
-	public boolean retainAll(Collection<?> c) {
-		boolean modified = false;
-		for (int i = size - 1; i >= 0; i--) {
+    @Override
+    public boolean retainAll(Collection<?> c) {
+        boolean modified = false;
+        for (int i = size - 1; i >= 0; i--) {
             if (!c.contains(elements[i])) {
                 removeAt(i);
                 modified = true;
             }
         }
         return modified;
-	}
+    }
 
-	@Override
-	public void clear() {
-		for (int i = 0; i < elements.length; i++)
-		{
-			elements[i] = null;
-		}
-		size = 0;
-	}
-	
-	private void removeAt(int index) {
+    @Override
+    public void clear() {
+        for (int i = 0; i < size; i++)
+        {
+            elements[i] = null;
+        }
+        size = 0;
+    }
+
+    private void removeAt(int index) {
         int numMoved = size - index - 1;
         if (numMoved > 0) {
             System.arraycopy(elements, index + 1, elements, index, numMoved);
         }
-        elements[--size] = null; 
+        elements[--size] = null;
     }
-	
-	private void ensureCapacity() {
-		if (size == elements.length) {
-			elements = Arrays.copyOf(elements, size * 2);
-		}
+
+    private void ensureCapacity() {
+        if (size == elements.length) {
+            elements = Arrays.copyOf(elements, size * 2);
+        }
+    }
+
+    public long countOccurrencesStream(T target) {
+        return Arrays.stream(elements, 0, size)
+                .parallel()
+                .filter(e -> Objects.equals(e, target))
+                .count();
     }
 }
-
-
