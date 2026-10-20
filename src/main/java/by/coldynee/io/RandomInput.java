@@ -38,6 +38,6 @@ public class RandomInput implements InputSource {
                             .setKilometrage(random.nextInt(Bus.MAX_KILOMETRAGE) + 1)
                             .build();
                 })
-                .collect(Collectors.toList());
+                .toList();
     }
 }
