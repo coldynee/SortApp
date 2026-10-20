@@ -67,7 +67,7 @@ public class CsvFileOutputStrategy implements OutputStrategy {
                             bus.getKilometrage()))
                     .collect(Collectors.toList());
 
-            if (!append && !Files.exists(path)) {
+            if (!Files.exists(path)) {
                 lines.add(0, "ГосНомер,Модель,Пробег");
             }
 
