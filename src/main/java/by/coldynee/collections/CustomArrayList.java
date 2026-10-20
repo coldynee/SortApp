@@ -63,7 +63,7 @@ public class CustomArrayList<T> implements List<T> {
      * Возвращает итератор для последовательного доступа к элементам.
      * Поддерживает безопасное удаление элементов во время итерации.
      */
-    @Override
+	@Override
     public Iterator<T> iterator() {
         return new Iterator<T>() {
             private int cursor = 0;
@@ -159,10 +159,10 @@ public class CustomArrayList<T> implements List<T> {
      * Удаляет все элементы, которые присутствуют в указанной коллекции.
      * Использует обратный цикл для безопасного удаления без сдвига индексов.
      */
-    @Override
-    public boolean removeAll(Collection<?> c) {
-        boolean modified = false;
-        for (int i = size - 1; i >= 0; i--) {
+	@Override
+	public boolean removeAll(Collection<?> c) {
+		boolean modified = false;
+		for (int i = size - 1; i >= 0; i--) {
             if (c.contains(elements[i])) {
                 removeAt(i);
                 modified = true;
@@ -175,29 +175,29 @@ public class CustomArrayList<T> implements List<T> {
      * Оставляет только те элементы, которые присутствуют в указанной коллекции.
      * Использует обратный цикл для безопасного удаления.
      */
-    @Override
-    public boolean retainAll(Collection<?> c) {
-        boolean modified = false;
-        for (int i = size - 1; i >= 0; i--) {
+	@Override
+	public boolean retainAll(Collection<?> c) {
+		boolean modified = false;
+		for (int i = size - 1; i >= 0; i--) {
             if (!c.contains(elements[i])) {
                 removeAt(i);
                 modified = true;
             }
         }
         return modified;
-    }
+	}
 
     /**
      * Очищает список, зануляя все ссылки для предотвращения утечек памяти.
      */
-    @Override
-    public void clear() {
-        for (int i = 0; i < elements.length; i++)
-        {
-            elements[i] = null;
-        }
-        size = 0;
-    }
+	@Override
+	public void clear() {
+		for (int i = 0; i < elements.length; i++)
+		{
+			elements[i] = null;
+		}
+		size = 0;
+	}
 
     @Override
     public T get(int index) {
@@ -376,7 +376,7 @@ public class CustomArrayList<T> implements List<T> {
      * Удаляет элемент по индексу и сдвигает все последующие элементы влево.
      * Зануляет последнюю ячейку для предотвращения утечек памяти.
      */
-    private void removeAt(int index) {
+	private void removeAt(int index) {
         int numMoved = size - index - 1;
         if (numMoved > 0) {
             System.arraycopy(elements, index + 1, elements, index, numMoved);
@@ -388,10 +388,10 @@ public class CustomArrayList<T> implements List<T> {
      * Увеличивает вместимость массива в 2 раза, если достигнут лимит.
      * Использует амортизированную сложность O(1) для операции добавления.
      */
-    private void ensureCapacity() {
-        if (size == elements.length) {
-            elements = Arrays.copyOf(elements, size * 2);
-        }
+	private void ensureCapacity() {
+		if (size == elements.length) {
+			elements = Arrays.copyOf(elements, size * 2);
+		}
     }
 }
 

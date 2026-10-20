@@ -118,7 +118,47 @@ class TxtFileInputTest {
         assertEquals("А111АА77", buses.get(0).getStateBusNumber());
     }
 
+    @Test
+    @DisplayName("Конструктор: выбрасывает исключение, если путь состоит только из расширения")
+    void constructorThrowsOnExtensionOnly() {
+        assertThrows(IllegalArgumentException.class, () -> new TxtFileInput(".txt"));
+        assertThrows(IllegalArgumentException.class, () -> new TxtFileInput(".TXT"));
 
+        assertThrows(IllegalArgumentException.class, () -> new TxtFileInput(".csv"));
+        assertThrows(IllegalArgumentException.class, () -> new TxtFileInput(" .csv "));
+
+        assertThrows(IllegalArgumentException.class, () -> new TxtFileInput(".json"));
+        assertThrows(IllegalArgumentException.class, () -> new TxtFileInput(".JSON"));
+    }
+    @Test
+    @DisplayName("Конструктор: путь заканчивается на разделитель папки")
+    void constructorThrowsOnTrailingSeparator() {
+        assertThrows(IllegalArgumentException.class, () -> new TxtFileInput("folder/"));
+        assertThrows(IllegalArgumentException.class, () -> new TxtFileInput("folder\\"));
+        assertThrows(IllegalArgumentException.class, () -> new TxtFileInput("folder" + java.io.File.separator));
+    }
+
+    @Test
+    @DisplayName("Конструктор: имя файла становится пустым после извлечения (пробелы после слэша)")
+    void constructorThrowsOnEmptyFileNameAfterTrim() {
+        assertThrows(IllegalArgumentException.class, () -> new TxtFileInput("folder/ "));
+        assertThrows(IllegalArgumentException.class, () -> new TxtFileInput("C:\\temp\\ "));
+    }
+
+    @Test
+    @DisplayName("Конструктор: имя файла состоит только из расширения внутри папки")
+    void constructorThrowsOnExtensionOnlyInFolder() {
+        assertThrows(IllegalArgumentException.class, () -> new TxtFileInput("folder/.csv"));
+        assertThrows(IllegalArgumentException.class, () -> new TxtFileInput("C:\\temp\\.json"));
+        assertThrows(IllegalArgumentException.class, () -> new TxtFileInput("data/.TXT"));
+    }
+    @Test
+    @DisplayName("Конструктор: полное покрытие всех веток проверки разделителей (||)")
+    void constructorCoversAllSeparatorBranches() {
+        assertThrows(IllegalArgumentException.class, () -> new TxtFileInput("a/"));
+        assertThrows(IllegalArgumentException.class, () -> new TxtFileInput("a\\"));
+        assertThrows(IllegalArgumentException.class, () -> new TxtFileInput("a" + java.io.File.separator));
+    }
 
     @Test
     @DisplayName("Перехват IOException")

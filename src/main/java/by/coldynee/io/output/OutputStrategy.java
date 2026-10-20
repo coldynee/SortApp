@@ -5,13 +5,15 @@ import by.coldynee.model.Bus;
 import java.util.List;
 
 /**
- * Стратегия вывода данных об автобусах.
+ * Стратегия сохранения данных об автобусах.
  */
 public interface OutputStrategy {
     /**
-     * Выводит список автобусов.
+     * Сохраняет список автобусов в файл.
      *
-     * @param buses список для вывода
+     * @param buses  список автобусов для сохранения
+     * @param filePath путь к файлу
+     * @param append true — режим добавления (дозапись), false — перезапись
      */
-    void display(List<Bus> buses);
+    void save(List<Bus> buses, String filePath, boolean append);
 }

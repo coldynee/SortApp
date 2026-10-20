@@ -144,6 +144,50 @@ class JsonFileInputTest {
     }
 
     @Test
+    @DisplayName("Конструктор: выбрасывает исключение, если путь состоит только из расширения")
+    void constructorThrowsOnExtensionOnly() {
+
+        assertThrows(IllegalArgumentException.class, () -> new JsonFileInput(".txt"));
+        assertThrows(IllegalArgumentException.class, () -> new JsonFileInput(".TXT"));
+
+        assertThrows(IllegalArgumentException.class, () -> new JsonFileInput(".csv"));
+        assertThrows(IllegalArgumentException.class, () -> new JsonFileInput(" .csv "));
+
+        assertThrows(IllegalArgumentException.class, () -> new JsonFileInput(".json"));
+        assertThrows(IllegalArgumentException.class, () -> new JsonFileInput(".JSON"));
+    }
+
+    @Test
+    @DisplayName("Конструктор: путь заканчивается на разделитель папки")
+    void constructorThrowsOnTrailingSeparator() {
+        assertThrows(IllegalArgumentException.class, () -> new JsonFileInput("folder/"));
+        assertThrows(IllegalArgumentException.class, () -> new JsonFileInput("folder\\"));
+        assertThrows(IllegalArgumentException.class, () -> new JsonFileInput("folder" + java.io.File.separator));
+    }
+
+    @Test
+    @DisplayName("Конструктор: имя файла становится пустым после извлечения (пробелы после слэша)")
+    void constructorThrowsOnEmptyFileNameAfterTrim() {
+        assertThrows(IllegalArgumentException.class, () -> new JsonFileInput("folder/ "));
+        assertThrows(IllegalArgumentException.class, () -> new JsonFileInput("C:\\temp\\ "));
+    }
+
+    @Test
+    @DisplayName("Конструктор: имя файла состоит только из расширения внутри папки")
+    void constructorThrowsOnExtensionOnlyInFolder() {
+        assertThrows(IllegalArgumentException.class, () -> new JsonFileInput("folder/.csv"));
+        assertThrows(IllegalArgumentException.class, () -> new JsonFileInput("C:\\temp\\.json"));
+        assertThrows(IllegalArgumentException.class, () -> new JsonFileInput("data/.TXT"));
+    }
+    @Test
+    @DisplayName("Конструктор: полное покрытие всех веток проверки разделителей (||)")
+    void constructorCoversAllSeparatorBranches() {
+        assertThrows(IllegalArgumentException.class, () -> new JsonFileInput("a/"));
+        assertThrows(IllegalArgumentException.class, () -> new JsonFileInput("a\\"));
+        assertThrows(IllegalArgumentException.class, () -> new JsonFileInput("a" + java.io.File.separator));
+    }
+
+    @Test
     @DisplayName("Перехват IOException")
     void catchIOException() throws Exception {
         Path fakeFileDir = tempDir.resolve("fake_directory.json");

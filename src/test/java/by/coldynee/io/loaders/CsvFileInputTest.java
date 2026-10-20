@@ -106,6 +106,52 @@ class CsvFileInputTest {
     }
 
     @Test
+    @DisplayName("Конструктор: выбрасывает исключение, если путь состоит только из расширения")
+    void constructorThrowsOnExtensionOnly() {
+
+        assertThrows(IllegalArgumentException.class, () -> new CsvFileInput(".txt"));
+        assertThrows(IllegalArgumentException.class, () -> new CsvFileInput(".TXT"));
+
+        assertThrows(IllegalArgumentException.class, () -> new CsvFileInput(".csv"));
+        assertThrows(IllegalArgumentException.class, () -> new CsvFileInput(" .csv "));
+
+        assertThrows(IllegalArgumentException.class, () -> new CsvFileInput(".json"));
+        assertThrows(IllegalArgumentException.class, () -> new CsvFileInput(".JSON"));
+    }
+
+    @Test
+    @DisplayName("Конструктор: путь заканчивается на разделитель папки")
+    void constructorThrowsOnTrailingSeparator() {
+        assertThrows(IllegalArgumentException.class, () -> new CsvFileInput("folder/"));
+        assertThrows(IllegalArgumentException.class, () -> new CsvFileInput("folder\\"));
+        assertThrows(IllegalArgumentException.class, () -> new CsvFileInput("folder" + java.io.File.separator));
+    }
+
+    @Test
+    @DisplayName("Конструктор: имя файла становится пустым после извлечения (пробелы после слэша)")
+    void constructorThrowsOnEmptyFileNameAfterTrim() {
+        assertThrows(IllegalArgumentException.class, () -> new CsvFileInput("folder/ "));
+        assertThrows(IllegalArgumentException.class, () -> new CsvFileInput("C:\\temp\\ "));
+    }
+
+    @Test
+    @DisplayName("Конструктор: имя файла состоит только из расширения внутри папки")
+    void constructorThrowsOnExtensionOnlyInFolder() {
+        assertThrows(IllegalArgumentException.class, () -> new CsvFileInput("folder/.csv"));
+        assertThrows(IllegalArgumentException.class, () -> new CsvFileInput("C:\\temp\\.json"));
+        assertThrows(IllegalArgumentException.class, () -> new CsvFileInput("data/.TXT"));
+    }
+
+    @Test
+    @DisplayName("Конструктор: полное покрытие всех веток проверки разделителей (||)")
+    void constructorCoversAllSeparatorBranches() {
+        assertThrows(IllegalArgumentException.class, () -> new CsvFileInput("a/"));
+        assertThrows(IllegalArgumentException.class, () -> new CsvFileInput("a\\"));
+        assertThrows(IllegalArgumentException.class, () -> new CsvFileInput("a" + java.io.File.separator));
+    }
+
+
+    @Test
     @DisplayName("Перехват IOException")
     void catchIOException() throws Exception {
         Path fakeDir = tempDir.resolve("fake_directory.csv");

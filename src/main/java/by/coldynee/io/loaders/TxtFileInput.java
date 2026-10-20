@@ -39,7 +39,28 @@ public class TxtFileInput implements InputSource {
             throw new IllegalArgumentException("Путь к файлу не может быть пустым");
         }
         String cleanPath = filePath.trim();
-        if (!cleanPath.toLowerCase().endsWith(".txt")) {
+
+        if (cleanPath.endsWith("/") || cleanPath.endsWith("\\") || cleanPath.endsWith(java.io.File.separator)) {
+            throw new IllegalArgumentException("Вы указали путь к папке, а не к файлу. Добавьте имя файла.");
+        }
+
+        String fileName;
+        int lastSlashIndex = Math.max(cleanPath.lastIndexOf('/'), cleanPath.lastIndexOf('\\'));
+        if (lastSlashIndex == -1) {
+            fileName = cleanPath;
+        } else {
+            fileName = cleanPath.substring(lastSlashIndex + 1);
+        }
+        if (fileName.trim().isEmpty()) {
+            throw new IllegalArgumentException("Имя файла не может быть пустым.");
+        }
+        fileName = fileName.trim();
+
+        if (fileName.startsWith(".") && fileName.indexOf('.', 1) == -1) {
+            throw new IllegalArgumentException("Имя файла не может состоять только из расширения");
+        }
+
+        if (!fileName.toLowerCase().endsWith(".txt")) {
             cleanPath += ".txt";
         }
         this.filePath = cleanPath;
@@ -50,7 +71,7 @@ public class TxtFileInput implements InputSource {
         Path path = Path.of(filePath);
 
         if (!Files.exists(path)) {
-            System.err.println("\nОшибка: файл не найден по пути: " + path.toAbsolutePath());
+            System.out.println("\nОшибка: файл не найден по пути: " + path.toAbsolutePath());
             return List.of();
         }
 
@@ -70,7 +91,7 @@ public class TxtFileInput implements InputSource {
                     .collect(Collectors.toList());
 
         } catch (IOException | java.io.UncheckedIOException e) {
-            System.err.println("Ошибка чтения файла: " + e.getMessage());
+            System.out.println("Ошибка чтения файла: " + e.getMessage());
             return List.of();
         }
     }
@@ -87,7 +108,7 @@ public class TxtFileInput implements InputSource {
         try {
             String[] parts = line.split(";");
             if (parts.length != 3) {
-                System.err.println("Обнаружен неверный формат на строке " + num + ", (ожидается 3 поля через ';'): " + line);
+                System.out.println("Обнаружен неверный формат на строке " + num + ", (ожидается 3 поля через ';'): " + line);
                 return null;
             }
 
@@ -98,10 +119,10 @@ public class TxtFileInput implements InputSource {
                     .build();
 
         } catch (NumberFormatException e) {
-            System.err.println("Обнаружен неверный пробег на строке" + num + ", (должен быть целым числом)");
+            System.out.println("Обнаружен неверный пробег на строке " + num + ", (должен быть целым числом)");
             return null;
         } catch (IllegalArgumentException e) {
-            System.err.println("Ошибка валидации на строке " + num + " (" + line + "): " + e.getMessage());
+            System.out.println("Ошибка валидации на строке " + num + " (" + line + "): " + e.getMessage());
             return null;
         }
     }
