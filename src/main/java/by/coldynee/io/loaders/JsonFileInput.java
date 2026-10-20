@@ -105,7 +105,7 @@ public class JsonFileInput implements InputSource {
                     .limit(count > 0 ? count : Long.MAX_VALUE)
                     .map(obj -> parseJsonNode(obj.data, obj.num))
                     .filter(Objects::nonNull)
-                    .collect(Collectors.toList());
+                    .toList();
 
         } catch (IOException | java.io.UncheckedIOException e) {
             System.out.println("Ошибка чтения файла: файл поврежден или имеет неверный формат");

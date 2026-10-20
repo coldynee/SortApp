@@ -25,8 +25,8 @@ public class Bus {
     private final String modelName;
     private final int kilometrage;
 
-    private Bus(BusBuilder builder, String stateBusNumber) {
-        this.stateBusNumber = stateBusNumber;
+    private Bus(BusBuilder builder) {
+        this.stateBusNumber = builder.stateBusNumber;
         this.modelName = builder.modelName;
         this.kilometrage = builder.kilometrage;
     }
@@ -72,13 +72,10 @@ public class Bus {
          * @throws IllegalArgumentException если хотя бы одно поле невалидно
          */
         public Bus build(){
-            String normalizedStateBusNumber = stateBusNumber != null
-                    ? stateBusNumber.replaceAll("[\\s-]", "").toUpperCase()
-                    : null;
-            BusValidator.validateStateBusNumber(normalizedStateBusNumber);
+            BusValidator.validateStateBusNumber(stateBusNumber);
             BusValidator.validateModelName(modelName);
             BusValidator.validateKilometrage(kilometrage);
-            return new Bus(this, normalizedStateBusNumber);
+            return new Bus(this);
         }
     }
 

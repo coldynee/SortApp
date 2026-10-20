@@ -19,10 +19,6 @@ public class BusValidator {
             );
         }
 
-        if (!trimmed.matches(".*\\d{2,3}$")) {
-            throw new IllegalArgumentException("Госномер должен заканчиваться на 2 или 3 цифры");
-        }
-
         String regionStr = trimmed.replaceFirst(".*?(\\d{2,3})$", "$1");
         try {
             int region = Integer.parseInt(regionStr);

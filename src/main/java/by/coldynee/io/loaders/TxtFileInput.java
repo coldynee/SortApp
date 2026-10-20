@@ -88,7 +88,7 @@ public class TxtFileInput implements InputSource {
                     .limit(count > 0 ? count : Long.MAX_VALUE)
                     .map(obj -> parseLine(obj.text, obj.num))
                     .filter(Objects::nonNull)
-                    .collect(Collectors.toList());
+                    .toList();
 
         } catch (IOException | java.io.UncheckedIOException e) {
             System.out.println("Ошибка чтения файла: " + e.getMessage());
