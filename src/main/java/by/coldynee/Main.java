@@ -1,6 +1,7 @@
 package by.coldynee;
 
 import by.coldynee.collections.CustomArrayList;
+import by.coldynee.collections.MultithreadedCounter;
 import by.coldynee.io.InputSource;
 import by.coldynee.io.ManualInput;
 import by.coldynee.io.RandomInput;
@@ -252,39 +253,40 @@ public class Main {
         System.out.println("1. Государственный номер");
         System.out.println("2. Название модели");
         System.out.println("3. Пробег");
-        System.out.println("4. По всем параметрам (универсальный поиск)");
+        System.out.println("4. По всем параметрам (универсальный поиск, поддерживает частичный ввод)");
         System.out.println("0. Назад в главное меню");
         int choiceInput = readIntInRange(scanner, "Выберите параметр (1-4) или '0' для возврата", 0, 4);
         if (choiceInput == 0) {
             return;
         }
+
         System.out.println("Введите параметр");
-        String paramInput = scanner.nextLine().trim();
+        String rawInput = scanner.nextLine().trim();
+        String searchQuery = rawInput.toLowerCase();
 
         System.out.println("Начат процесс многопоточного поиска");
         long startTime = System.currentTimeMillis();
 
-        // TODO:
-        // Реализовать вызов многопоточного метода
-        // int count = MultithreadedCounter.countOccurrences(buses, bus -> {
-        //     return switch (choiceInput) {
-        //         case 1 -> bus.getStateBusNumber().equalsIgnoreCase(paramInput);
-        //         case 2 -> bus.getModelName().equalsIgnoreCase(paramInput);
-        //         case 3 -> String.valueOf(bus.getKilometrage()).equals(paramInput);
-        //         case 4 -> bus.getStateBusNumber().equalsIgnoreCase(paramInput) ||
-        //                  bus.getModelName().equalsIgnoreCase(paramInput) ||
-        //                  String.valueOf(bus.getKilometrage()).equals(paramInput);
-        //         default -> false;
-        //     };
-        // });
-
-
-        int count = 0;
+         long count = MultithreadedCounter.countOccurrences(buses, bus -> {
+             return switch (choiceInput) {
+                 case 1 -> bus.getStateBusNumber().toLowerCase().equals(searchQuery);
+                 case 2 -> bus.getModelName().toLowerCase().equals(searchQuery);
+                 case 3 -> String.valueOf(bus.getKilometrage()).equals(rawInput);
+                 case 4 -> {
+                     yield bus.getStateBusNumber().toLowerCase().contains(searchQuery) ||
+                             bus.getModelName().toLowerCase().contains(searchQuery) ||
+                             String.valueOf(bus.getKilometrage()).contains(rawInput);
+                 }
+                 default -> false;
+             };
+         });
 
         long endTime = System.currentTimeMillis();
         System.out.println("Найдено " + count + " вхождений");
         System.out.println("Многопоточный поиск завершен за " + (endTime-startTime) + " мс");
 
+        System.out.println("\nДля продолжения введите любое значение или нажмите 'Enter'");
+        scanner.nextLine();
     }
 
     private static void handleDataOutput(Scanner scanner, List<Bus> buses) {
