@@ -72,9 +72,14 @@ public class Bus {
          * @throws IllegalArgumentException если хотя бы одно поле невалидно
          */
         public Bus build(){
-            BusValidator.validateStateBusNumber(stateBusNumber);
+            String normalizedStateBusNumber = stateBusNumber != null
+                    ? stateBusNumber.replaceAll("[\\s-]", "").toUpperCase()
+                    : null;
+            BusValidator.validateStateBusNumber(normalizedStateBusNumber);
             BusValidator.validateModelName(modelName);
             BusValidator.validateKilometrage(kilometrage);
+            this.stateBusNumber = normalizedStateBusNumber;
+
             return new Bus(this);
         }
     }
